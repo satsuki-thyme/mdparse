@@ -132,9 +132,10 @@ ___アンダーバーによる太字かつイタリック All bold and italic___
 \_イタリック Italic_  
 \*イタリック Italic*  
 \~~取り消し Strikethrough~~  
-```
-個別ブロックでの引用コード 1 Quoting code into distinct block
-```
-
 \[リンク Links](.#)  
-\![画像 Images](sample.jpg)
+\![画像 Images](sample.jpg)  
+\```
+個別ブロックでの引用コード Quoting code into distinct block
+```
+個別ブロックでの引用コード Quoting code into distinct block
+個別ブロックでの引用コード Quoting code into distinct block
