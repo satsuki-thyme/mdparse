@@ -912,7 +912,6 @@ async function mdParse(src) {
     }
   }
   async function preEncl(work, prop, i) {
-    console.log(work, prop, i)
     /*
       table of if
       the pre...
@@ -935,7 +934,7 @@ async function mdParse(src) {
       &&
       prop[i + 1].preId === prop[i].preId
     ) {
-      return work[i]
+      return `\n${work[i]}`
     }
     // the pre begins, not ends
     if (
@@ -949,7 +948,7 @@ async function mdParse(src) {
       &&
       i < prop.length - 1
       &&
-      prop[i + 1] === "preEncl"
+      prop[i + 1].class === "preEncl"
       &&
       prop[i + 1].preId === prop[i].preId
     ) {
@@ -971,7 +970,7 @@ async function mdParse(src) {
       &&
       prop[i - 1].preId === prop[i].preId
     ) {
-      return `${work[i]}</code></pre>\n`
+      return `\n${work[i]}</code></pre>\n`
     }
     // the pre begins and ends
     if (
@@ -1013,7 +1012,7 @@ async function mdParse(src) {
       &&
       prop[i + 1].class === "preInd"
     ) {
-      return work[i].replace(/^\t|^ {4}/, "")
+      return `\n${work[i].replace(/^\t|^ {4}/, "")}`
     }
     // the pre begins, not ends
     else if (
@@ -1041,7 +1040,7 @@ async function mdParse(src) {
         prop[i - 1].class === "preInd"
       )
     ) {
-      return `${work[i].replace(/^\t|^ {4}/, "")}</code></pre>\n`
+      return `\n${work[i].replace(/^\t|^ {4}/, "")}</code></pre>\n`
     }
     // the pre begins and ends
     else if (
