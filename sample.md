@@ -81,10 +81,18 @@ ___アンダーバーによる太字かつイタリック All bold and italic___
 
 ```
 個別ブロックでの引用コード 1 Quoting code into distinct block 1
+個別ブロックでの引用コード 1 Quoting code into distinct block 1
 ```
 ```
 個別ブロックでの引用コード 2 Quoting code into distinct block 2
+個別ブロックでの引用コード 2 Quoting code into distinct block 2
 ```
+	* 個別ブロックでの引用コード 3 Quoting code into distinct block 3
+	* 個別ブロックでの引用コード 3 Quoting code into distinct block 3
+
+	* 個別ブロックでの引用コード 4 Quoting code into distinct block 4
+	* 個別ブロックでの引用コード 4 Quoting code into distinct block 4
+
 
 | heading1 | heading2 | heading3 |
 |:---------|:--------:|---------:|
@@ -124,7 +132,7 @@ ___アンダーバーによる太字かつイタリック All bold and italic___
 \_イタリック Italic_  
 \*イタリック Italic*  
 \~~取り消し Strikethrough~~  
-\```
+```
 個別ブロックでの引用コード 1 Quoting code into distinct block
 ```
 
