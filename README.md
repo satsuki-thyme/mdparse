@@ -1,2 +1,2 @@
 # mdparse
-Markdown をパースする JavaScript のライブラリ。（ JavaScript library to parse Markdown. ）
+Markdown をパースして HTML にする JavaScript のライブラリ。（ A JavaScript library that parses Markdown into HTML. ）
