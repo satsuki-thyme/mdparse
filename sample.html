@@ -1,0 +1,36 @@
+<div id="container"></div>
+<script src="mdparse.js"></script>
+<script>
+let node_container = document.querySelector("#container")
+fetch("sample.md")
+.then(async r => {
+  if (r.ok) {
+    mdParse(await r.text())
+    .then(r => {
+      node_container.innerHTML = r
+    })
+  }
+})
+</script>
+<style>
+.user-cnt-tasklist {
+  list-style: none;
+  text-indent: -1.5em;
+}
+.user-cnt-table-right {
+  text-align: right;
+}
+.user-cnt-table-center {
+  text-align: center;
+}
+.user-cnt-table-left {
+  text-align: left;
+}
+.user-cnt-arrow {
+  display: inline-block;
+  height: 16px;
+  vertical-align: middle;
+  fill: #0000ff;
+}
+</style>
+  
