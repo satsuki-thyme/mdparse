@@ -17,11 +17,11 @@ async function mdParse(src) {
       return markupBlock(rly)
     })
     .then(rly => {
-      let work = []
-      for (let i in rly[0]) {
-        work.push({"word": rly[0][i], "prop": rly[1][i]})
-      }
-      console.log(work)
+//      let work = []
+//      for (let i in rly[0]) {
+//        work.push({"word": rly[0][i], "prop": rly[1][i]})
+//      }
+//      console.log(work)
       return markupInline(rly)
     })
     .then(rly => {
@@ -549,15 +549,15 @@ async function mdParse(src) {
   function markupInline(rly) {
     return rly[0].map(rly => {
       return rly
-      .replace(/(?<!\\|[^\\]_)_([^_].*?)_(?!_)/g, "<em>$1</em>")
-      .replace(/(?<!\\|[^\\]_)__([^_].*?)__(?!_)/g, "<strong>$1</strong>")
+      .replace(/(?<!\\|_)_([^_].*?)_(?!_)/g, "<em>$1</em>")
+      .replace(/(?<!\\|_)__([^_].*?)__(?!_)/g, "<strong>$1</strong>")
       .replace(/(?<!\\)___(.+?)___/g, "<strong><em>$1</em></strong>")
-      .replace(/(?<!\\|[^\\]\*)\*([^*].*?)\*(?!\*)/g, "<em>$1</em>")
-      .replace(/(?<!\\|[^\\]\*)\*\*([^*].*?)\*\*(?!\*)/g, "<strong>$1</strong>")
+      .replace(/(?<!\\|\*)\*([^*].*?)\*(?!\*)/g, "<em>$1</em>")
+      .replace(/(?<!\\|\*)\*\*([^*].*?)\*\*(?!\*)/g, "<strong>$1</strong>")
       .replace(/(?<!\\)\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>")
-      .replace(/(?<!\\|[^\\]~)~~(.+?)~~(?!~)/g, "<del>$1</del>")
+      .replace(/(?<!\\|~)~~(.+?)~~(?!~)/g, "<del>$1</del>")
       .replace(/(?<!\\)`(.+?)`/g, "<code>$1</code>")
-      .replace(/(?<!\\|[^\\]!)\[([^\]]+?)\]\((.+?)\)/g, `<a href="$2">$1</a>`)
+      .replace(/(?<!\\|!)\[([^\]]+?)\]\((.+?)\)/g, `<a href="$2">$1</a>`)
       .replace(/(?<!\\)!\[([^\]]+?)\]\((.+?)\)/g, `<img src="$2" alt="$1">`)
       .replace(/(?<!\\)\\(_|\*|~|`|\[|!|\\)/g, "$1")
     })
