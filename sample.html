@@ -28,9 +28,140 @@ fetch("sample.md")
 }
 .user-cnt-arrow {
   display: inline-block;
-  height: 16px;
+  height: 12px;
   vertical-align: middle;
   fill: #0000ff;
+}
+h1 {
+  font-size: 38px;
+}
+h2 {
+  font-size: 32px;
+}
+h3 {
+  font-size: 27px;
+}
+h4 {
+  font-size: 23px;
+}
+h5 {
+  font-size: 20px;
+}
+h6 {
+  font-size: 18px;
+}
+h1,
+h1 ~ p,
+h1 ~ ol,
+h1 ~ ul,
+h1 ~ blockquote,
+h1 ~ pre,
+h1 ~ table {
+  margin-left: 0;
+}
+h2,
+h2 ~ p,
+h2 ~ ol,
+h2 ~ ul,
+h2 ~ blockquote,
+h2 ~ pre,
+h2 ~ table {
+  margin-left: 20px;
+}
+h3,
+h3 ~ p,
+h3 ~ ol,
+h3 ~ ul,
+h3 ~ blockquote,
+h3 ~ pre,
+h3 ~ table {
+  margin-left: 36px;
+}
+h4,
+h4 ~ p,
+h4 ~ ol,
+h4 ~ ul,
+h4 ~ blockquote,
+h4 ~ pre,
+h4 ~ table {
+  margin-left: 48px;
+}
+h5,
+h5 ~ p,
+h5 ~ ol,
+h5 ~ ul,
+h5 ~ blockquote,
+h5 ~ pre,
+h5 ~ table {
+  margin-left: 56px;
+}
+h6,
+h6 ~ p,
+h6 ~ ol,
+h6 ~ ul,
+h6 ~ blockquote,
+h6 ~ pre,
+h6 ~ table {
+  margin-left: 60px;
+}
+blockquote {
+  padding-left: 10px;
+  border-left: 7px solid #ccc;
+}
+blockquote blockquote {
+  margin-left: 0;
+}
+code {
+  padding: 3px;
+  color: #f8f8f2;
+  background-color: #272822;
+  border-radius: 3px;
+}
+pre code {
+  display: inline-block;
+  padding: 10px;
+  line-height: 1.5em;
+}
+table + table {
+  margin-top: 20px;
+}
+table,
+td,
+th {
+  border-style: solid;
+  border-color: #0d0015;
+}
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+  border-width: 1px;
+}
+td,
+th {
+  padding: 5px 10px;
+  vertical-align: top;
+  border-width: 1px 0 0 1px;
+}
+tr:first-child td,
+tr:first-child th {
+  border-top-width: 0;
+}
+td:first-child,
+th:first-child {
+  border-left-width: 0;
+}
+thead + tbody tr:first-child td,
+thead + tbody tr:first-child th {
+  border-top-width: 1px;
+}
+tfoot tr:first-child td,
+tfoot tr:first-child th {
+  border-top-width: 1px;
+}
+section:last-child {
+  margin-top: 30px;
+  font-size: 90%;
+  border-top: 1px solid #0d0015;
 }
 </style>
   
