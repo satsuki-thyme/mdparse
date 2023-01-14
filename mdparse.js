@@ -2,15 +2,11 @@ async function mdParse(src) {
   let accum = []
   let preEnclContinuation = false
   let fnCnt = []
-  let arrowIcon = 
-`<svg class="user-cnt-arrow" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0, 0, 16, 21">
-<path d="M 0,0 V 2 h 8 c 3,0 6,3 6,6 0,3 -3,6 -6,6 H 7 v 2 h 1 c 4,0 8,-4 8,-8 0,-4 -4,-8 -8,-8 z"/>
-<path d="M 6,21 7,19 3,15 7,11 6,9 0,15 Z"/>
-</svg>`
+  let arrowIcon = `<svg class="user-cnt-arrow" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0, 0, 16, 21"><path d="M 0,0 V 2 h 8 c 3,0 6,3 6,6 0,3 -3,6 -6,6 H 7 v 2 h 1 c 4,0 8,-4 8,-8 0,-4 -4,-8 -8,-8 z"/><path d="M 6,21 7,19 3,15 7,11 6,9 0,15 Z"/></svg>`
   return new Promise(resolve => {
     classify(
       src
-      .replace(/ {2}$/gm, "<br>")
+      .replace(/  $/gm, "<br>")
       .split(/\r?\n/)
     )
     .then(rly => {
@@ -404,7 +400,6 @@ async function mdParse(src) {
           }
         }
         else {
-          console.log(0)
           prop[i].class = "unmatched"
           if (i < work.length - 1) {
             i++
@@ -418,7 +413,6 @@ async function mdParse(src) {
     })
   }
   function markupBlock(rly) {
-    console.log(1)
     let work = rly[0]
     let prop = rly[1]
     let tProp = rly[2]
@@ -598,17 +592,17 @@ async function mdParse(src) {
   function markupInline(rly) {
     return rly[0].map(rly => {
       return rly
-      .replace(/(?<!\\|_)_([^_].*?)_(?!_)/g, "<em>$1</em>")
-      .replace(/(?<!\\|_)__([^_].*?)__(?!_)/g, "<strong>$1</strong>")
-      .replace(/(?<!\\)___(.+?)___/g, "<strong><em>$1</em></strong>")
-      .replace(/(?<!\\|\*)\*([^*].*?)\*(?!\*)/g, "<em>$1</em>")
-      .replace(/(?<!\\|\*)\*\*([^*].*?)\*\*(?!\*)/g, "<strong>$1</strong>")
-      .replace(/(?<!\\)\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>")
-      .replace(/(?<!\\|~)~~(.+?)~~(?!~)/g, "<del>$1</del>")
-      .replace(/(?<!\\)`(.+?)`/g, "<code>$1</code>")
-      .replace(/(?<!\\|!)\[([^\]]+?)\]\((.+?)\)/g, `<a href="$2">$1</a>`)
-      .replace(/(?<!\\)!\[([^\]]+?)\]\((.+?)\)/g, `<img src="$2" alt="$1">`)
-      .replace(/(?<!\\)\\(_|\*|~|`|\[|!|\\)/g, "$1")
+      .replace(/(?<!\\|_)_((?!<br>)[^_].*?)_(?!_)/g, "<em>$1</em>")
+      .replace(/(?<!\\|_)__((?!<br>)[^_].*?)__(?!_)/g, "<strong>$1</strong>")
+      .replace(/(?<!\\)___((?!<br>).+?)___/g, "<strong><em>$1</em></strong>")
+      .replace(/(?<!\\|\*)\*((?!<br>)[^*].*?)\*(?!\*)/g, "<em>$1</em>")
+      .replace(/(?<!\\|\*)\*\*((?!<br>)[^*].*?)\*\*(?!\*)/g, "<strong>$1</strong>")
+      .replace(/(?<!\\)\*\*\*((?!<br>).+?)\*\*\*/g, "<strong><em>$1</em></strong>")
+      .replace(/(?<!\\|~)~~((?!<br>).+?)~~(?!~)/g, "<del>$1</del>")
+      .replace(/(?<!\\)`((?!<br>).+?)`/g, "<code>$1</code>")
+      .replace(/(?<!\\|!)\[((?!<br>)[^\]]+?)\]\((.+?)\)/g, `<a href="$2">$1</a>`)
+      .replace(/(?<!\\)!\[((?!<br>)[^\]]+?)\]\((.+?)\)/g, `<img src="$2" alt="$1">`)
+      .replace(/(?<!\\)\\(.)/g, "$1")
     })
   }
   function procFn(rly) {
@@ -622,8 +616,15 @@ async function mdParse(src) {
     }
     fnCntSortUniq = Array.from(new Set(fnCntSortUniq))
     let arrow = makeArrow()
-    return makeFnKey(work) + makeFnCnt()
-    function makeFnKey(rly) {
+    let work_with_key_processing = makeFnKey(work)
+    let footnote = makeFnCnt()
+    if (footnote === "" || fnKey.length === 0) {
+      return work_with_key_processing
+    }
+    else {
+      return `${work_with_key_processing}<section class="footnotes">\n<ol>\n${footnote}</ol>\n</section>`
+    }
+  function makeFnKey(rly) {
       let work = rly
       let j = 0
       for (let i = 0; i < fnKey.length; i++) {
@@ -663,11 +664,9 @@ async function mdParse(src) {
     }
     function makeFnCnt() {
       let work = []
-      work.push(`<section class="footnotes">\n<ol>\n`)
       for (let i in fnCntSort) {
         work.push(`<li id="user-cnt-fun-${i}"><p>${fnCntSort[i].word.replace(/^\[[^\]]+\]: /g, "")}${arrow[i].join("")}</p></li>\n`)
       }
-      work.push("</ol>\n</section>")
       return work.join("")
     }
     function makeArrow() {
