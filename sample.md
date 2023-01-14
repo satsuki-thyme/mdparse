@@ -170,6 +170,25 @@ ___アンダーバーによる太字かつイタリック All bold and italic___
 [^footnotes-one]: 脚注本文 Footnotes Words 1
 [^footnotes-two]: 脚注本文 Footnotes Words 2
 
+***
+アスタリスクによる横罫線 horizontal rule with asterisks  
+---
+ハイフンによる横罫線 horizontal rule with hyphens  
+___
+アンダーバーによる横罫線 horizontal rule with underbar  
+ * * *
+アスタリスクによる横罫線（スペース区切り） horizontal rule with asterisks (separated by space)
+ - - -
+ハイフンによる横罫線（スペース区切り） horizontal rule with hyphens (separated by space)
+ _ _ _
+アンダーバーによる横罫線（スペース区切り） horizontal rule with underbar (separated by space)
+	*	*	*
+アスタリスクによる横罫線（タブ区切り） horizontal rule with asterisks (separated by tab)
+	-	-	-
+ハイフンによる横罫線（タブ区切り） horizontal rule with hyphens (separated by tab)
+	_	_	_
+アンダーバーによる横罫線（タブ区切り） horizontal rule with underbar (separated by tab)
+
 <!--非表示 Hiding content with comments-->
 
 \Markdown の無視 Ignoring Markdown formatting  
@@ -178,6 +197,25 @@ ___アンダーバーによる太字かつイタリック All bold and italic___
 \~~取り消し Strikethrough~~  
 \[リンク Links](.#)  
 \![画像 Images](sample.jpg)  
+\***
+アスタリスクによる横罫線 horizontal rule with asterisks  
+\---
+ハイフンによる横罫線 horizontal rule with hyphens  
+\___
+横罫アンダーバーによる線 holirontal rule with underbar  
+ \* * *
+アスタリスクによる横罫線（スペース区切り） horizontal rule with asterisks (separated by space)  
+ \- - -
+ハイフンによる横罫線（スペース区切り） horizontal rule with hyphens (separated by space)  
+ \_ _ _
+横罫アンダーバーによる線（スペース区切り） holirontal rule with underbar (separated by space)  
+	\*	*	*
+アスタリスクによる横罫線（タブ区切り） horizontal rule with asterisks (separated by tab)  
+	\-	-	-
+ハイフンによる横罫線（タブ区切り） horizontal rule with hyphens (separated by tab)  
+	\_	_	_
+横罫アンダーバーによる線（タブ区切り） holirontal rule with underbar (separated by tab)  
+
 \```
 個別ブロックでの引用コード Quoting code into distinct block
 ```
