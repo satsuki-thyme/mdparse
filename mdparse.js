@@ -59,7 +59,7 @@ async function mdParse(src) {
         if (
           preEnclContinuation === false
           &&
-          work[i].match(/^$/) !== null
+          /^$/.test(work[i]) === true
         ) {
           prop[i].class = "blank"
           if (i < work.length - 1) {
@@ -74,7 +74,7 @@ async function mdParse(src) {
         else if (
           preEnclContinuation === false
           &&
-          work[i].match(/^#{1,6} /) !== null
+          /^#{1,6} /.test(work[i]) === true
         ) {
           prop[i].class = "h"
           if (i < work.length - 1) {
@@ -89,7 +89,7 @@ async function mdParse(src) {
         else if (
           preEnclContinuation === false
           &&
-          /^(#{1,6}|\* |\+ |- |\d+\. |( {4,}|\t)(?!\\)|```|>+ |\||\[\^.+?\]: ?).*$|^[ \t]*(?!\\)([*-_][ \t]*){3,}$/.test(work[i]) === false
+          /^(#{1,6}|\* |\+ |- |\d+\. |( {4,}|\t)(?!\\)|```|~~~|>+ |\||\[\^.+?\]: ?).*$|^[ \t]*(?!\\)([*-_][ \t]*){3,}$/.test(work[i]) === false
         ) {
           prop[i].class = "p"
           if (i < work.length - 1) {
@@ -104,7 +104,7 @@ async function mdParse(src) {
         else if (
           preEnclContinuation === false
           &&
-          work[i].match(/^(?:\t| {4})*[*+-] (?!\[[ x]\] )/) !== null
+          /^(\t| {4})*[*+-] (?!\[[ x]\] )/.test(work[i]) === true
           &&
           (
             (
@@ -147,7 +147,7 @@ async function mdParse(src) {
         else if (
           preEnclContinuation === false
           &&
-          work[i].match(/^(?:\t| {4})*\d+\. /) !== null
+          /^(\t| {4})*\d+\. /.test(work[i]) === true
           &&
           (
             (
@@ -190,7 +190,7 @@ async function mdParse(src) {
         else if (
           preEnclContinuation === false
           &&
-          work[i].match(/^(?:\t| {4})*[*+-] \[[ x]\] /) !== null
+          /^(\t| {4})*[*+-] \[[ x]\] /.test(work[i]) === true
           &&
           (
             (
@@ -233,7 +233,7 @@ async function mdParse(src) {
         else if (
           preEnclContinuation === false
           &&
-          work[i].match(/^>+ /) !== null
+          /^>+ /.test(work[i]) === true
         ) {
           prop[i].class = "bq"
           prop[i].stack = work[i].match(/^>+/)[0].match(/>/g).length
@@ -247,7 +247,7 @@ async function mdParse(src) {
         }
         // pre with enclosing
         else if (
-          work[i].match(/^[`~]{3}/) !== null
+          /^```|^~~~/.test(work[i]) === true
         ) {
           prop[i].class = "preEncl"
           prop[i].site = "end"
@@ -270,7 +270,7 @@ async function mdParse(src) {
         else if (
           preEnclContinuation === true
           &&
-          work[i].match(/^[`~]{3}/) === null
+          /^```|^~~~/.test(work[i]) === false
         ) {
           prop[i].class = "preEncl"
           prop[i].site = "middle"
@@ -287,10 +287,10 @@ async function mdParse(src) {
         else if (
           preEnclContinuation === false
           &&
-          work[i].match(/^(?:\t| {4})+(?!([*-_][ \t]*){3,})/)
+          /^(\t| {4})+(?!([*-_][ \t]*){3,})/.test(work[i]) === true
           &&
           (
-            work[i].match(/^(?:\*|\+|-|\d+\.) /) === null
+            /^(\*|\+|-|\d+\.) /.test(work[i]) === false
             ||
             (
               i !== prop.length - 1
@@ -312,11 +312,11 @@ async function mdParse(src) {
         else if (
           preEnclContinuation === false
           &&
-          work[i].match(/^\|/) !== null
+          /^\|/.test(work[i]) === true
         ) {
           prop[i].class = "table"
           let hLine = false
-          if (work[i].match(/^(?:\| ?:?-+:? ?)+\|/) !== null) {
+          if (/^(\| ?:?-+:? ?)+\|/.test(work[i]) === true) {
             hLine = true
           }
           if (
@@ -373,7 +373,7 @@ async function mdParse(src) {
         else if (
           preEnclContinuation === false
           &&
-          work[i].match(/\[.+?\]: /) !== null
+          /\[.+?\]: /.test(work[i]) === true
         ) {
           prop[i].class = "footnote"
           if (i < work.length - 1) {
@@ -577,7 +577,7 @@ async function mdParse(src) {
           }
         }
         else if (prop[i].class === "unmatched") {
-          work[i] += " --- unmatched"
+          console.log(`unmatched at line ${i}\n${work[i]}`)
           if (i < prop.length - 1) {
             i++
             fn()
@@ -687,7 +687,7 @@ async function mdParse(src) {
     return `<h${num}>${work[i].replace(/^#+ /, "")}</h${num}>`
   }
   function pConcat(src) {
-    if (src.match(/<br>$/) === null) {
+    if (/<br>$/.test(src) === false) {
       return " "
     }
     else {
@@ -838,7 +838,7 @@ async function mdParse(src) {
     if (prop[i].task === false) {
       return `<li>`
     }
-    else if (work[i].match(/^.*\[ \]/) !== null) {
+    else if (/^.*\[ \]/.test(work[i]) === true) {
       return `<li class="user-cnt-tasklist"><input type="checkbox"> `
     }
     else {
@@ -1219,16 +1219,16 @@ async function mdParse(src) {
   function setAlign(src) {
     let work = src.split("|")
     return work.splice(1, work.length - 2).map(rly => {
-      if (rly.match(/^ ?:-+ ?$/) !== null) {
+      if (/^ ?:-+ ?$/.test(rly) === true) {
         return "left"
       }
-      if (rly.match(/^ ?:-+: ?$/) !== null) {
+      if (/^ ?:-+: ?$/.test(rly) === true) {
         return "center"
       }
-      if (rly.match(/^ ?-+: ?$/) !== null) {
+      if (/^ ?-+: ?$/.test(rly) === true) {
         return "right"
       }
-      if (rly.match(/^ ?-+ ?$/) !== null) {
+      if (/^ ?-+ ?$/.test(rly) === true) {
         return ""
       }
     })
