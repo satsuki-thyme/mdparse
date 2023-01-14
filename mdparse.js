@@ -57,6 +57,7 @@ async function mdParse(src) {
           9. pre with indentation
           10. table
           11. footnote
+          12. hr
         */
         // blank
         if (
@@ -74,7 +75,7 @@ async function mdParse(src) {
           }
         }
         // h
-        if (
+        else if (
           preEnclContinuation === false
           &&
           work[i].match(/^#{1,6} /) !== null
@@ -89,10 +90,10 @@ async function mdParse(src) {
           }
         }
         // p
-        if (
+        else if (
           preEnclContinuation === false
           &&
-          work[i].match(/^(?!(#{1,6}|\*|\+|-|\d+\.) |>+ |[`~]{3}|\t| {4}|\||\[\^.+?\]: ?).+/) !== null
+          /^(#{1,6}|\* |\+ |- |\d+\. |( {4,}|\t)(?!\\)|```|>+ |\||\[\^.+?\]: ?).*$|^[ \t]*(?!\\)([*-_][ \t]*){3,}$/.test(work[i]) === false
         ) {
           prop[i].class = "p"
           if (i < work.length - 1) {
@@ -104,7 +105,7 @@ async function mdParse(src) {
           }
         }
         // li with ul as parent
-        if (
+        else if (
           preEnclContinuation === false
           &&
           work[i].match(/^(?:\t| {4})*[*+-] (?!\[[ x]\] )/) !== null
@@ -147,7 +148,7 @@ async function mdParse(src) {
           }
         }
         // li with ol as parent
-        if (
+        else if (
           preEnclContinuation === false
           &&
           work[i].match(/^(?:\t| {4})*\d+\. /) !== null
@@ -190,7 +191,7 @@ async function mdParse(src) {
           }
         }
         // task list
-        if (
+        else if (
           preEnclContinuation === false
           &&
           work[i].match(/^(?:\t| {4})*[*+-] \[[ x]\] /) !== null
@@ -233,7 +234,7 @@ async function mdParse(src) {
           }
         }
         // blockquote
-        if (
+        else if (
           preEnclContinuation === false
           &&
           work[i].match(/^>+ /) !== null
@@ -249,7 +250,7 @@ async function mdParse(src) {
           }
         }
         // pre with enclosing
-        if (
+        else if (
           work[i].match(/^[`~]{3}/) !== null
         ) {
           prop[i].class = "preEncl"
@@ -270,7 +271,7 @@ async function mdParse(src) {
           }
         }
         // pre therefore enclosing
-        if (
+        else if (
           preEnclContinuation === true
           &&
           work[i].match(/^[`~]{3}/) === null
@@ -287,10 +288,10 @@ async function mdParse(src) {
           }
         }
         // pre with indentation
-        if (
+        else if (
           preEnclContinuation === false
           &&
-          work[i].match(/^(?:\t| {4})+/)
+          work[i].match(/^(?:\t| {4})+(?!([*-_][ \t]*){3,})/)
           &&
           (
             work[i].match(/^(?:\*|\+|-|\d+\.) /) === null
@@ -312,7 +313,7 @@ async function mdParse(src) {
           }
         }
         // table
-        if (
+        else if (
           preEnclContinuation === false
           &&
           work[i].match(/^\|/) !== null
@@ -372,7 +373,8 @@ async function mdParse(src) {
             resolve([work, prop, tProp])
           }
         }
-        if (
+        // footnote
+        else if (
           preEnclContinuation === false
           &&
           work[i].match(/\[.+?\]: /) !== null
@@ -386,10 +388,37 @@ async function mdParse(src) {
             resolve([work, prop, tProp])
           }
         }
+        // hr
+        else if (
+          preEnclContinuation === false
+          &&
+          /^[ \t]*(?!\\)([*-_][ \t]*){3,}$/.test(work[i]) === true
+        ) {
+          prop[i].class = "hr"
+          if (i < work.length - 1) {
+            i++
+            fn()
+          }
+          else {
+            resolve([work, prop, tProp])
+          }
+        }
+        else {
+          console.log(0)
+          prop[i].class = "unmatched"
+          if (i < work.length - 1) {
+            i++
+            fn()
+          }
+          else {
+            resolve([work, prop, tProp])
+          }
+        }
       }
     })
   }
   function markupBlock(rly) {
+    console.log(1)
     let work = rly[0]
     let prop = rly[1]
     let tProp = rly[2]
@@ -537,6 +566,26 @@ async function mdParse(src) {
           work = work.slice(0, i).concat(work.slice(i + 1))
           prop = prop.slice(0, i).concat(prop.slice(i + 1))
           if (i < prop.length - 1) {
+            fn()
+          }
+          else {
+            resolve([work, prop])
+          }
+        }
+        else if (prop[i].class === "hr") {
+          work[i] = "<hr>"
+          if (i < prop.length - 1) {
+            i++
+            fn()
+          }
+          else {
+            resolve([work, prop])
+          }
+        }
+        else if (prop[i].class === "unmatched") {
+          work[i] += " --- unmatched"
+          if (i < prop.length - 1) {
+            i++
             fn()
           }
           else {
