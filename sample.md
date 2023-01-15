@@ -124,14 +124,46 @@
 
 脚注 Footnotes 2 [^footnotes-two] 脚注 Footnotes 3 [^footnotes-three]
 
-*アスタリスクによるイタリック Italic*  
-_アンダーバーによるイタリック Italic_  
-**アスタリスクによる太字 Bold**  
-__アンダーバーによる太字 Bold__  
-~~取り消し Strikethrough~~  
-**アスタリスクによる太字と_アンダーバーによるイタリック_の入れ子 Bold and nested _italic_**  
-***アスタリスクによる太字かつイタリック All bold and italic***  
-___アンダーバーによる太字かつイタリック All bold and italic___  
+*アスタリスクによるイタリック Italic*
+
+_アンダーバーによるイタリック Italic_
+
+**アスタリスクによる太字 Bold**
+
+__アンダーバーによる太字 Bold__
+
+~~取り消し Strikethrough~~
+
+**アスタリスクによる太字と_アンダーバーによるイタリック_の入れ子 Bold and nested _italic_**
+
+***アスタリスクによる太字かつイタリック All bold and italic***
+
+___アンダーバーによる太字かつイタリック All bold and italic___
+
+*改行を含む  
+アスタリスクによるイタリック Italic*
+
+_改行を含む  
+アンダーバーによるイタリック Italic_
+
+**改行を含む  
+アスタリスクによる太字 Bold**
+
+__改行を含む  
+アンダーバーによる太字 Bold__
+
+~~改行を含む  
+取り消し Strikethrough~~
+
+**改行を含む  
+アスタリスクによる太字と_アンダーバーによるイタリック_の入れ子 Bold and nested _italic_**
+
+***改行を含む  
+アスタリスクによる太字かつイタリック All bold and italic***
+
+___改行を含む  
+アンダーバーによる太字かつイタリック All bold and italic___
+
 
 > 引用文 Quoting text
 > 引用文 Quoting text
