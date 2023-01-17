@@ -89,7 +89,7 @@ async function mdParse(src) {
         else if (
           preEnclContinuation === false
           &&
-          /^(#{1,6}|\* |\+ |- |\d+\. |( {4,}|\t)(?!\\)|```|~~~|>+ |\||\[\^.+?\]: ?).*$|^[ \t]*(?!\\)([*-_][ \t]*){3,}$/.test(work[i]) === false
+          /^(#{1,6}|\* |\+ |- |\d+\. |( {4,}|\t)(?!\\)|```|~~~|>+ |\||\[\^.+?\]: ?).*$|^[ \t]*(?!\\)([*\-_][ \t]*){3,}$/.test(work[i]) === false
         ) {
           prop[i].class = "p"
           if (i < work.length - 1) {
@@ -287,7 +287,7 @@ async function mdParse(src) {
         else if (
           preEnclContinuation === false
           &&
-          /^(\t| {4})+(?!([*-_][ \t]*){3,})/.test(work[i]) === true
+          /^(\t| {4})+(?!([*\-_][ \t]*){3,}$)/.test(work[i]) === true
           &&
           (
             /^(\*|\+|-|\d+\.) /.test(work[i]) === false
@@ -388,7 +388,7 @@ async function mdParse(src) {
         else if (
           preEnclContinuation === false
           &&
-          /^[ \t]*(?!\\)([*-_][ \t]*){3,}$/.test(work[i]) === true
+          /^[ \t]*(?!\\)([*\-_][ \t]*){3,}$/.test(work[i]) === true
         ) {
           prop[i].class = "hr"
           if (i < work.length - 1) {
