@@ -1,4 +1,4 @@
-async function mdParse(src) {
+function mdParse(src) {
   let accum = []
   let preEnclContinuation = false
   let fnCnt = []
