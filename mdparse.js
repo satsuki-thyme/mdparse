@@ -102,7 +102,7 @@ function mdParse(src) {
         else if (
           preEnclContinuation === false
           &&
-          /^(\t| {4})*[*+-] (?!\[[ x]\] )/.test(work[i]) === true
+          /^(\t| {4})*[*+\-] (?!\[[ x]\] )/.test(work[i]) === true
           &&
           (
             (
@@ -188,7 +188,7 @@ function mdParse(src) {
         else if (
           preEnclContinuation === false
           &&
-          /^(\t| {4})*[*+-] \[[ x]\] /.test(work[i]) === true
+          /^(\t| {4})*[*+\-] \[[ x]\] /.test(work[i]) === true
           &&
           (
             (
@@ -682,7 +682,7 @@ function mdParse(src) {
   }
   function h(work, i) {
     let num = work[i].match(/^#+/)[0].match(/#/g).length
-    return `<h${num}>${work[i].replace(/^#+ /, "")}</h${num}>`
+    return `<h${num}>${work[i].replace(/^#+ /, "")}</h${num}>\n`
   }
   function pConcat(src) {
     if (/<br>$/.test(src) === false) {
@@ -731,7 +731,7 @@ function mdParse(src) {
         )
       )
     ) {
-      return `${liBegin(work, prop, i)}${work[i].replace(/^[\t ]*([*+-]|\d+\.) (\[[ x]\] )?/, "")}</li>`
+      return `${liBegin(work, prop, i)}${work[i].replace(/^[\t ]*([*+\-]|\d+\.) (\[[ x]\] )?/, "")}</li>`
     }
     // the li begins, not ends
     if (
@@ -764,7 +764,7 @@ function mdParse(src) {
       )
     ) {
       accum.push(prop[i].parent)
-      return `<${prop[i].parent}>\n${liBegin(work, prop, i)}${work[i].replace(/^[\t ]*([*+-]|\d+\.) (\[[ x]\] )?/, "")}</li>`
+      return `<${prop[i].parent}>\n${liBegin(work, prop, i)}${work[i].replace(/^[\t ]*([*+\-]|\d+\.) (\[[ x]\] )?/, "")}</li>`
     }
     // the li ends, not begins
     if (
@@ -796,7 +796,7 @@ function mdParse(src) {
         )
       )
     ) {
-      return `${liBegin(work, prop, i)}${work[i].replace(/^[\t ]*([*+-]|\d+\.) (\[[ x]\] )?/, "")}</li>\n${liEnd(prop, i)}`
+      return `${liBegin(work, prop, i)}${work[i].replace(/^[\t ]*([*+\-]|\d+\.) (\[[ x]\] )?/, "")}</li>\n${liEnd(prop, i)}`
     }
     // the li begins and ends
     if (
@@ -829,7 +829,7 @@ function mdParse(src) {
       )
     ) {
       accum.push(prop[i].parent)
-      return `<${prop[i].parent}>\n${liBegin(work, prop, i)}${work[i].replace(/^[\t ]*([*+-]|\d+\.) (\[[ x]\] )?/, "")}</li>\n${liEnd(prop, i)}`
+      return `<${prop[i].parent}>\n${liBegin(work, prop, i)}${work[i].replace(/^[\t ]*([*+\-]|\d+\.) (\[[ x]\] )?/, "")}</li>\n${liEnd(prop, i)}`
     }
   }
   function liBegin(work, prop, i) {
