@@ -1,5 +1,5 @@
 function mdParse(src) {
-  let accum = []
+  let liAccum = []
   let preEnclContinuation = false
   let fnCnt = []
   let arrowIcon = `<svg class="user-cnt-arrow" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0, 0, 16, 21"><path d="M 0,0 V 2 h 8 c 3,0 6,3 6,6 0,3 -3,6 -6,6 H 7 v 2 h 1 c 4,0 8,-4 8,-8 0,-4 -4,-8 -8,-8 z"/><path d="M 6,21 7,19 3,15 7,11 6,9 0,15 Z"/></svg>`
@@ -12,11 +12,11 @@ function mdParse(src) {
     return markupBlock(rly)
   })
   .then(rly => {
-//    let work = []
-//    for (let i in rly[0]) {
-//      work.push({"word": rly[0][i], "prop": rly[1][i]})
-//    }
-//    console.log(work)
+    let work = []
+    for (let i in rly[0]) {
+      work.push({"word": rly[0][i], "prop": rly[1][i]})
+    }
+    console.log(work)
     return markupInline(rly)
   })
   .then(rly => {
@@ -251,7 +251,7 @@ function mdParse(src) {
           prop[i].site = "end"
           if (preEnclContinuation === false) {
             preEnclContinuation = true
-            prop[i].preId = i
+            prop[i].preGrp = i
           }
           else {
             preEnclContinuation = false
@@ -272,7 +272,7 @@ function mdParse(src) {
         ) {
           prop[i].class = "preEncl"
           prop[i].site = "middle"
-          prop[i].preId = prop[i - 1].preId
+          prop[i].preGrp = prop[i - 1].preGrp
           if (i < work.length - 1) {
             i++
             fn()
@@ -322,7 +322,7 @@ function mdParse(src) {
             &&
             prop[i - 1].class === "table"
           ) {
-            prop[i].tId = prop[i - 1].tId
+            prop[i].tableGrp = prop[i - 1].tableGrp
             if (hLine === false) {
               rowNumAttach++
               prop[i].rowNum = rowNumAttach
@@ -330,9 +330,9 @@ function mdParse(src) {
           }
           else {
             tProp.push({}) 
-            prop[i].tId = tProp.length - 1
-            tProp[prop[i].tId].hLineAlready = false
-            tProp[prop[i].tId].hLinePosition = 0
+            prop[i].tableGrp = tProp.length - 1
+            tProp[prop[i].tableGrp].hLineAlready = false
+            tProp[prop[i].tableGrp].hLinePosition = 0
             if (hLine === false) {
               rowNumAttach = 0
               prop[i].rowNum = 0
@@ -343,19 +343,19 @@ function mdParse(src) {
           }
           else {
             prop[i].hLine = true
-            if (tProp[prop[i].tId].hLineAlready === false) {
-              tProp[prop[i].tId].hLineAlready = true
+            if (tProp[prop[i].tableGrp].hLineAlready === false) {
+              tProp[prop[i].tableGrp].hLineAlready = true
               let align = setAlign(work[i])
-              tProp[prop[i].tId].align = `class="user-cnt-table-${align}" align="${align}"`
+              tProp[prop[i].tableGrp].align = `class="user-cnt-table-${align}" align="${align}"`
               if (
                 i === 0
                 ||
                 prop[i - 1].class !== "table"
               ) {
-                tProp[prop[i].tId].hLinePosition = 0
+                tProp[prop[i].tableGrp].hLinePosition = 0
               }
               else {
-                tProp[prop[i].tId].hLinePosition = prop[i - 1].rowNum + 1
+                tProp[prop[i].tableGrp].hLinePosition = prop[i - 1].rowNum + 1
               }
             }
           }
@@ -747,6 +747,12 @@ function mdParse(src) {
           &&
           prop[i].parent !== prop[i - 1].parent
         )
+        ||
+        (
+          prop[i].indent < prop[i - 1].indent
+          &&
+          prop[i].parent !== liAccum[liAccum.length - 1]
+        )
       )
       &&
       i < prop.length - 1
@@ -763,7 +769,7 @@ function mdParse(src) {
         )
       )
     ) {
-      accum.push(prop[i].parent)
+      liAccum.push(prop[i].parent)
       return `<${prop[i].parent}>\n${liBegin(work, prop, i)}${work[i].replace(/^[\t ]*([*+\-]|\d+\.) (\[[ x]\] )?/, "")}</li>`
     }
     // the li ends, not begins
@@ -787,7 +793,11 @@ function mdParse(src) {
       prop[i - 1].class === "li"
       &&
       (
-        prop[i].indent < prop[i - 1].indent
+        (
+          prop[i].indent < prop[i - 1].indent
+          &&
+          prop[i].parent === liAccum[liAccum.length - 1]
+        )
         ||
         (
           prop[i].indent === prop[i - 1].indent
@@ -812,6 +822,12 @@ function mdParse(src) {
           &&
           prop[i].parent !== prop[i - 1].parent
         )
+        ||
+        (
+          prop[i].indent < prop[i - 1].indent
+          &&
+          prop[i].parent !== liAccum[liAccum.length - 1]
+        )
       )
       &&
       (
@@ -828,7 +844,7 @@ function mdParse(src) {
         )
       )
     ) {
-      accum.push(prop[i].parent)
+      liAccum.push(prop[i].parent)
       return `<${prop[i].parent}>\n${liBegin(work, prop, i)}${work[i].replace(/^[\t ]*([*+\-]|\d+\.) (\[[ x]\] )?/, "")}</li>\n${liEnd(prop, i)}`
     }
   }
@@ -844,7 +860,7 @@ function mdParse(src) {
     }
   }
   function liEnd(prop, i) {
-    let ter = ""
+    let liTerm = ""
     /*
       table of if
       1. the li all ends
@@ -856,10 +872,16 @@ function mdParse(src) {
       i === prop.length - 1
       ||
       prop[i + 1].class !== "li"
+      ||
+      (
+        prop[i + 1].indent === 0
+        &&
+        prop[i + 1].parent !== liAccum[0]
+      )
     ) {
-      ter = `</${accum.reverse().join(">\n</")}>\n`
-      accum = []
-      return ter
+      liTerm = `</${liAccum.reverse().join(">\n</")}>\n`
+      liAccum = []
+      return liTerm
     }
     // the nested li ends, the parent li continues
     if (
@@ -870,9 +892,9 @@ function mdParse(src) {
       prop[i].indent > prop[i + 1].indent
     ) {
       let dif = prop[i + 1].indent - prop[i].indent
-      ter = `</${accum.slice(dif).reverse().join(">\n</")}>\n`
-      accum = accum.slice(0, accum.length + dif)
-      return ter
+      liTerm = `</${liAccum.slice(dif).reverse().join(">\n</")}>\n`
+      liAccum = liAccum.slice(0, liAccum.length + dif)
+      return liTerm
     }
     // the different types (ol, ul) of li ends
     if (
@@ -882,11 +904,13 @@ function mdParse(src) {
       &&
       prop[i].indent === prop[i + 1].indent
       &&
+      prop[i + 1].indent !== 0
+      &&
       prop[i].parent !== prop[i + 1].parent
     ) {
-      ter = `</${accum.slice(-1)}>\n`
-      accum = accum.slice(0, accum.length - 1)
-      return ter
+      liTerm = `</${liAccum.slice(-1)}>\n`
+      liAccum = liAccum.slice(0, liAccum.length - 1)
+      return liTerm
     }
   }
   function bq(work, prop, i) {
@@ -972,13 +996,13 @@ function mdParse(src) {
       &&
       prop[i - 1].class === "preEncl"
       &&
-      prop[i - 1].preId === prop[i].preId
+      prop[i - 1].preGrp === prop[i].preGrp
       &&
       i < prop.length - 1
       &&
       prop[i + 1].class === "preEncl"
       &&
-      prop[i + 1].preId === prop[i].preId
+      prop[i + 1].preGrp === prop[i].preGrp
     ) {
       return `\n${work[i]}`
     }
@@ -989,14 +1013,14 @@ function mdParse(src) {
         ||
         prop[i - 1].class !== "preEncl"
         ||
-        prop[i - 1].preId !== prop[i].preId
+        prop[i - 1].preGrp !== prop[i].preGrp
       )
       &&
       i < prop.length - 1
       &&
       prop[i + 1].class === "preEncl"
       &&
-      prop[i + 1].preId === prop[i].preId
+      prop[i + 1].preGrp === prop[i].preGrp
     ) {
       return `<pre><code>${work[i]}`
     }
@@ -1007,14 +1031,14 @@ function mdParse(src) {
         ||
         prop[i + 1].class !== "preEncl"
         ||
-        prop[i + 1].preId !== prop[i].preId
+        prop[i + 1].preGrp !== prop[i].preGrp
       )
       &&
       i > 0
       &&
       prop[i - 1].class === "preEncl"
       &&
-      prop[i - 1].preId === prop[i].preId
+      prop[i - 1].preGrp === prop[i].preGrp
     ) {
       return `\n${work[i]}</code></pre>\n`
     }
@@ -1025,7 +1049,7 @@ function mdParse(src) {
         ||
         prop[i - 1].class !== "preEncl"
         ||
-        prop[i - 1].preId !== prop[i].preId
+        prop[i - 1].preGrp !== prop[i].preGrp
       )
       &&
       (
@@ -1033,7 +1057,7 @@ function mdParse(src) {
         ||
         prop[i + 1].class !== "preEncl"
         ||
-        prop[i + 1].preId !== prop[i].preId
+        prop[i + 1].preGrp !== prop[i].preGrp
       )
     ) {
       return `<pre><code>${work[i]}</code></pre>\n`
@@ -1124,16 +1148,16 @@ function mdParse(src) {
       &&
       prop[i + 1].class === "table"
     ) {
-      if (tProp[prop[i].tId].hLinePosition === prop[i].rowNum + 1) {
+      if (tProp[prop[i].tableGrp].hLinePosition === prop[i].rowNum + 1) {
         return `${trtd(work, prop, tProp, i)}</thead>\n`
       }
-      if (tProp[prop[i].tId].hLinePosition === prop[i].rowNum) {
+      if (tProp[prop[i].tableGrp].hLinePosition === prop[i].rowNum) {
         return `<tbody>\n${trtd(work, prop, tProp, i)}`
       }
       if (
-        tProp[prop[i].tId].hLinePosition !== prop[i].rowNum + 1
+        tProp[prop[i].tableGrp].hLinePosition !== prop[i].rowNum + 1
         &&
-        tProp[prop[i].tId].hLinePosition !== prop[i].rowNum
+        tProp[prop[i].tableGrp].hLinePosition !== prop[i].rowNum
       ) {
         return `${trtd(work, prop, tProp, i)}`
       }
@@ -1151,17 +1175,17 @@ function mdParse(src) {
       prop[i + 1].class === "table"
     ) {
       if (
-        tProp[prop[i].tId].hLinePosition === 0
+        tProp[prop[i].tableGrp].hLinePosition === 0
       ) {
         return `<table>\n<tbody>\n${trtd(work, prop, tProp, i)}`
       }
       if (
-        tProp[prop[i].tId].hLinePosition === 1
+        tProp[prop[i].tableGrp].hLinePosition === 1
       ) {
         return `<table>\n<thead>\n${trtd(work, prop, tProp, i)}</thead>\n`
       }
       if (
-        tProp[prop[i].tId].hLinePosition > 1
+        tProp[prop[i].tableGrp].hLinePosition > 1
       ) {
         return `<table>\n<thead>\n${trtd(work, prop, tProp, i)}`
       }
@@ -1178,16 +1202,16 @@ function mdParse(src) {
       &&
       prop[i - 1].class === "table"
     ) {
-      if (tProp[prop[i].tId].hLinePosition === prop[i].rowNum + 1) {
+      if (tProp[prop[i].tableGrp].hLinePosition === prop[i].rowNum + 1) {
         return `${trtd(work, prop, tProp, i)}</thead>\n</table>\n`
       }
-      if (tProp[prop[i].tId].hLinePosition === prop[i].rowNum) {
+      if (tProp[prop[i].tableGrp].hLinePosition === prop[i].rowNum) {
         return `<tbody>\n${trtd(work, prop, tProp, i)}</tbody>\n</table>\n`
       }
       if (
-        tProp[prop[i].tId].hLinePosition !== prop[i].rowNum + 1
+        tProp[prop[i].tableGrp].hLinePosition !== prop[i].rowNum + 1
         &&
-        tProp[prop[i].tId].hLinePosition !== prop[i].rowNum
+        tProp[prop[i].tableGrp].hLinePosition !== prop[i].rowNum
       ) {
         return `${trtd(work, prop, tProp, i)}</tbody>\n</table>\n`
       }
@@ -1206,10 +1230,10 @@ function mdParse(src) {
         prop[i + 1].class !== "table"
       )
     ) {
-      if (tProp[prop[i].tId].hLinePosition === i - prop[i].tId + 1) {
+      if (tProp[prop[i].tableGrp].hLinePosition === i - prop[i].tableGrp + 1) {
         return `<table>\n<thead>\n${trtd(work, prop, tProp, i)}</thead>\n</table>\n`
       }
-      if (tProp[prop[i].tId].hLinePosition === i - prop[i].tId) {
+      if (tProp[prop[i].tableGrp].hLinePosition === i - prop[i].tableGrp) {
         return `<table>\n<tbody>\n${trtd(work, prop, tProp, i)}</tbody>\n</table>\n`
       }
     }
@@ -1236,7 +1260,7 @@ function mdParse(src) {
     return "<tr>\n" + work1
     .splice(1, work1.length - 2)
     .map((rly, j) => {
-      return `<td ${tProp[prop[i].tId].align[j]}>${rly}</td>\n`
+      return `<td ${tProp[prop[i].tableGrp].align[j]}>${rly}</td>\n`
     })
     .join("") + "</tr>\n"
   }
