@@ -12,7 +12,6 @@ function mdParse(src) {
     return markupBlock(rly)
   })
   .then(rly => {
-// debug 
 //    let work = []
 //    for (let i in rly[0]) {
 //      work.push({"word": rly[0][i], "prop": rly[1][i]})
@@ -448,7 +447,7 @@ function mdParse(src) {
             ||
             prop[i + 1].class !== "p"
           ) {
-            work[i] = `<p>${work[i]}</p>\n`
+            work[i] = `<p>${work[i]}</p>`
             if (i < prop.length - 1) {
               i++
               fn()
@@ -589,7 +588,7 @@ function mdParse(src) {
     })
   }
   function markupInline(rly) {
-    return rly[0].map(rly => {
+    return rly[0].filter(rly => rly.length !== 0).map(rly => {
       return rly
       .replace(/(?<!\\|_)_(?!_|.*<br>)(.+?)(?<!_)_(?!_)/g, "<em>$1</em>")
       .replace(/(?<!\\|_)__(?!_|.*<br>)(.+?)(?<!_)__(?!_)/g, "<strong>$1</strong>")
@@ -621,7 +620,7 @@ function mdParse(src) {
       return work_with_key_processing
     }
     else {
-      return `${work_with_key_processing}<section class="footnotes">\n<ol>\n${footnote}</ol>\n</section>`
+      return `${work_with_key_processing}<section class="footnotes"><ol>${footnote}</ol></section>`
     }
   function makeFnKey(rly) {
       let work = rly
@@ -664,7 +663,7 @@ function mdParse(src) {
     function makeFnCnt() {
       let work = []
       for (let i in fnCntSort) {
-        work.push(`<li id="user-cnt-fun-${i}"><p>${fnCntSort[i].word.replace(/^\[[^\]]+\]: /g, "")}${arrow[i].join("")}</p></li>\n`)
+        work.push(`<li id="user-cnt-fun-${i}"><p>${fnCntSort[i].word.replace(/^\[[^\]]+\]: /g, "")}${arrow[i].join("")}</p></li>`)
       }
       return work.join("")
     }
@@ -683,7 +682,7 @@ function mdParse(src) {
   }
   function h(work, i) {
     let num = work[i].match(/^#+/)[0].match(/#/g).length
-    return `<h${num}>${work[i].replace(/^#+ /, "")}</h${num}>\n`
+    return `<h${num}>${work[i].replace(/^#+ /, "")}</h${num}>`
   }
   function pConcat(src) {
     if (/<br>$/.test(src) === false) {
@@ -771,7 +770,7 @@ function mdParse(src) {
       )
     ) {
       liAccum.push(prop[i].parent)
-      return `<${prop[i].parent}>\n${liBegin(work, prop, i)}${work[i].replace(/^[\t ]*([*+\-]|\d+\.) (\[[ x]\] )?/, "")}</li>`
+      return `<${prop[i].parent}>${liBegin(work, prop, i)}${work[i].replace(/^[\t ]*([*+\-]|\d+\.) (\[[ x]\] )?/, "")}</li>`
     }
     // the li ends, not begins
     if (
@@ -807,7 +806,7 @@ function mdParse(src) {
         )
       )
     ) {
-      return `${liBegin(work, prop, i)}${work[i].replace(/^[\t ]*([*+\-]|\d+\.) (\[[ x]\] )?/, "")}</li>\n${liEnd(prop, i)}`
+      return `${liBegin(work, prop, i)}${work[i].replace(/^[\t ]*([*+\-]|\d+\.) (\[[ x]\] )?/, "")}</li>${liEnd(prop, i)}`
     }
     // the li begins and ends
     if (
@@ -846,7 +845,7 @@ function mdParse(src) {
       )
     ) {
       liAccum.push(prop[i].parent)
-      return `<${prop[i].parent}>\n${liBegin(work, prop, i)}${work[i].replace(/^[\t ]*([*+\-]|\d+\.) (\[[ x]\] )?/, "")}</li>\n${liEnd(prop, i)}`
+      return `<${prop[i].parent}>${liBegin(work, prop, i)}${work[i].replace(/^[\t ]*([*+\-]|\d+\.) (\[[ x]\] )?/, "")}</li>${liEnd(prop, i)}`
     }
   }
   function liBegin(work, prop, i) {
@@ -880,7 +879,7 @@ function mdParse(src) {
         prop[i + 1].parent !== liAccum[0]
       )
     ) {
-      liTerm = `</${liAccum.reverse().join(">\n</")}>\n`
+      liTerm = `</${liAccum.reverse().join("></")}>`
       liAccum = []
       return liTerm
     }
@@ -893,7 +892,7 @@ function mdParse(src) {
       prop[i].indent > prop[i + 1].indent
     ) {
       let dif = prop[i + 1].indent - prop[i].indent
-      liTerm = `</${liAccum.slice(dif).reverse().join(">\n</")}>\n`
+      liTerm = `</${liAccum.slice(dif).reverse().join("></")}>`
       liAccum = liAccum.slice(0, liAccum.length + dif)
       return liTerm
     }
@@ -909,7 +908,7 @@ function mdParse(src) {
       &&
       prop[i].parent !== prop[i + 1].parent
     ) {
-      liTerm = `</${liAccum.slice(-1)}>\n`
+      liTerm = `</${liAccum.slice(-1)}>`
       liAccum = liAccum.slice(0, liAccum.length - 1)
       return liTerm
     }
@@ -951,10 +950,10 @@ function mdParse(src) {
     ) {
       let bqBegin = ""
       if (prop[i - 1].class !== "bq") {
-        bqBegin = `${"<blockquote>\n".repeat(prop[i].stack)}<p>\n`
+        bqBegin = `${"<blockquote>".repeat(prop[i].stack)}<p>`
       }
       else {
-        bqBegin = `${"<blockquote>\n".repeat(prop[i].stack - prop[i - 1].stack)}<p>\n`
+        bqBegin = `${"<blockquote>".repeat(prop[i].stack - prop[i - 1].stack)}<p>`
       }
       return `${bqBegin}${work[i].replace(/^>+ /, "")}`
     }
@@ -974,10 +973,10 @@ function mdParse(src) {
     ) {
       let bqEnd = ""
       if (prop[i + 1].class !== "bq") {
-        bqEnd = `${"</blockquote>\n".repeat(prop[i].stack)}</p>\n`
+        bqEnd = `${"</blockquote>".repeat(prop[i].stack)}</p>`
       }
       else {
-        bqEnd = `${"</blockquote>\n".repeat(prop[i].stack - prop[i + 1].stack)}</p>\n`
+        bqEnd = `${"</blockquote>".repeat(prop[i].stack - prop[i + 1].stack)}</p>`
       }
       return `${work[i].replace(/^>+ /, "")}${bqEnd}`
     }
@@ -1002,16 +1001,16 @@ function mdParse(src) {
       let bqBegin = ""
       let bqEnd = ""
       if (prop[i - 1].class !== "bq") {
-        bqBegin = `${"<blockquote>\n".repeat(prop[i].stack)}<p>\n`
+        bqBegin = `${"<blockquote>".repeat(prop[i].stack)}<p>`
       }
       else {
-        bqBegin = `${"<blockquote>\n".repeat(prop[i].stack - prop[i - 1].stack)}<p>\n`
+        bqBegin = `${"<blockquote>".repeat(prop[i].stack - prop[i - 1].stack)}<p>`
       }
       if (prop[i + 1].class !== "bq") {
-        bqEnd = `${"</blockquote>\n".repeat(prop[i].stack)}</p>\n`
+        bqEnd = `${"</blockquote>".repeat(prop[i].stack)}</p>`
       }
       else {
-        bqEnd = `${"</blockquote>\n".repeat(prop[i].stack - prop[i + 1].stack)}</p>\n`
+        bqEnd = `${"</blockquote>".repeat(prop[i].stack - prop[i + 1].stack)}</p>`
       }
       return `${bqBegin}${work[i].replace(/^>+ /, "")}${bqEnd}`
     }
@@ -1075,7 +1074,7 @@ function mdParse(src) {
       &&
       prop[i - 1].preGrp === prop[i].preGrp
     ) {
-      return `\n${work[i]}</code></pre>\n`
+      return `\n${work[i]}</code></pre>`
     }
     // the pre begins and ends
     if (
@@ -1095,7 +1094,7 @@ function mdParse(src) {
         prop[i + 1].preGrp !== prop[i].preGrp
       )
     ) {
-      return `<pre><code>${work[i]}</code></pre>\n`
+      return `<pre><code>${work[i]}</code></pre>`
     }
   }
   function preInd(work, prop, i) {
@@ -1145,7 +1144,7 @@ function mdParse(src) {
         prop[i - 1].class === "preInd"
       )
     ) {
-      return `\n${work[i].replace(/^\t|^ {4}/, "")}</code></pre>\n`
+      return `\n${work[i].replace(/^\t|^ {4}/, "")}</code></pre>`
     }
     // the pre begins and ends
     else if (
@@ -1161,7 +1160,7 @@ function mdParse(src) {
         prop[i + 1].class !== "preInd"
       )
     ) {
-      return `<pre><code>${work[i].replace(/^\t|^ {4}/, "")}</code></pre>\n`
+      return `<pre><code>${work[i].replace(/^\t|^ {4}/, "")}</code></pre>`
     }
   }
   async function table(work, prop, tProp, i) {
@@ -1184,10 +1183,10 @@ function mdParse(src) {
       prop[i + 1].class === "table"
     ) {
       if (tProp[prop[i].tableGrp].hLinePosition === prop[i].rowNum + 1) {
-        return `${trtd(work, prop, tProp, i)}</thead>\n`
+        return `${trtd(work, prop, tProp, i)}</thead>`
       }
       if (tProp[prop[i].tableGrp].hLinePosition === prop[i].rowNum) {
-        return `<tbody>\n${trtd(work, prop, tProp, i)}`
+        return `<tbody>${trtd(work, prop, tProp, i)}`
       }
       if (
         tProp[prop[i].tableGrp].hLinePosition !== prop[i].rowNum + 1
@@ -1212,17 +1211,17 @@ function mdParse(src) {
       if (
         tProp[prop[i].tableGrp].hLinePosition === 0
       ) {
-        return `<table>\n<tbody>\n${trtd(work, prop, tProp, i)}`
+        return `<table><tbody>${trtd(work, prop, tProp, i)}`
       }
       if (
         tProp[prop[i].tableGrp].hLinePosition === 1
       ) {
-        return `<table>\n<thead>\n${trtd(work, prop, tProp, i)}</thead>\n`
+        return `<table><thead>${trtd(work, prop, tProp, i)}</thead>`
       }
       if (
         tProp[prop[i].tableGrp].hLinePosition > 1
       ) {
-        return `<table>\n<thead>\n${trtd(work, prop, tProp, i)}`
+        return `<table><thead>${trtd(work, prop, tProp, i)}`
       }
     }
     // the table ends, not begins
@@ -1238,17 +1237,17 @@ function mdParse(src) {
       prop[i - 1].class === "table"
     ) {
       if (tProp[prop[i].tableGrp].hLinePosition === prop[i].rowNum + 1) {
-        return `${trtd(work, prop, tProp, i)}</thead>\n</table>\n`
+        return `${trtd(work, prop, tProp, i)}</thead></table>`
       }
       if (tProp[prop[i].tableGrp].hLinePosition === prop[i].rowNum) {
-        return `<tbody>\n${trtd(work, prop, tProp, i)}</tbody>\n</table>\n`
+        return `<tbody>${trtd(work, prop, tProp, i)}</tbody></table>`
       }
       if (
         tProp[prop[i].tableGrp].hLinePosition !== prop[i].rowNum + 1
         &&
         tProp[prop[i].tableGrp].hLinePosition !== prop[i].rowNum
       ) {
-        return `${trtd(work, prop, tProp, i)}</tbody>\n</table>\n`
+        return `${trtd(work, prop, tProp, i)}</tbody></table>`
       }
     }
     // the table begins and ends
@@ -1266,10 +1265,10 @@ function mdParse(src) {
       )
     ) {
       if (tProp[prop[i].tableGrp].hLinePosition === i - prop[i].tableGrp + 1) {
-        return `<table>\n<thead>\n${trtd(work, prop, tProp, i)}</thead>\n</table>\n`
+        return `<table><thead>${trtd(work, prop, tProp, i)}</thead></table>`
       }
       if (tProp[prop[i].tableGrp].hLinePosition === i - prop[i].tableGrp) {
-        return `<table>\n<tbody>\n${trtd(work, prop, tProp, i)}</tbody>\n</table>\n`
+        return `<table><tbody>${trtd(work, prop, tProp, i)}</tbody></table>`
       }
     }
   }
@@ -1292,11 +1291,11 @@ function mdParse(src) {
   }
   function trtd(work, prop, tProp, i) {
     let work1 = work[i].split(/[ \t]*(?<!\\)\|[ \t]*/)
-    return "<tr>\n" + work1
+    return "<tr>" + work1
     .splice(1, work1.length - 2)
     .map((rly, j) => {
-      return `<td ${tProp[prop[i].tableGrp].align[j]}>${rly}</td>\n`
+      return `<td ${tProp[prop[i].tableGrp].align[j]}>${rly}</td>`
     })
-    .join("") + "</tr>\n"
+    .join("") + "</tr>"
   }
 }
