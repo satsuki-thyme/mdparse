@@ -12,6 +12,7 @@ function mdParse(src) {
     return markupBlock(rly)
   })
   .then(rly => {
+// debug 
 //    let work = []
 //    for (let i in rly[0]) {
 //      work.push({"word": rly[0][i], "prop": rly[1][i]})
@@ -950,12 +951,12 @@ function mdParse(src) {
     ) {
       let bqBegin = ""
       if (prop[i - 1].class !== "bq") {
-        bqBegin = "\n<blockquote>".repeat(prop[i].stack).replace(/^\n/, "")
+        bqBegin = `${"<blockquote>\n".repeat(prop[i].stack)}<p>\n`
       }
       else {
-        bqBegin = "\n<blockquote>".repeat(prop[i].stack - prop[i - 1].stack).replace(/^\n/, "")
+        bqBegin = `${"<blockquote>\n".repeat(prop[i].stack - prop[i - 1].stack)}<p>\n`
       }
-        return `${bqBegin}${work[i].replace(/^>+ /, "")}`
+      return `${bqBegin}${work[i].replace(/^>+ /, "")}`
     }
     // the blockquote ends, not begins
     else if (
@@ -973,12 +974,46 @@ function mdParse(src) {
     ) {
       let bqEnd = ""
       if (prop[i + 1].class !== "bq") {
-        bqEnd = "</blockquote>\n".repeat(prop[i].stack).replace(/\n$/, "")
+        bqEnd = `${"</blockquote>\n".repeat(prop[i].stack)}</p>\n`
       }
       else {
-        bqEnd = "</blockquote>\n".repeat(prop[i].stack - prop[i + 1].stack).replace(/\n$/, "")
+        bqEnd = `${"</blockquote>\n".repeat(prop[i].stack - prop[i + 1].stack)}</p>\n`
       }
-        return `${work[i].replace(/^>+ /, "")}${bqEnd}`
+      return `${work[i].replace(/^>+ /, "")}${bqEnd}`
+    }
+    // the blockquote begins and ends
+    else if (
+      (
+        i === 0
+        ||
+        prop[i - 1].class !== "bq"
+        ||
+        prop[i].stack > prop[i - 1].stack
+      )
+      &&
+      (
+        i === prop.length - 1
+        ||
+        prop[i + 1].class !== "bq"
+        ||
+        prop[i].stack > prop[i + 1].stack
+      )
+    ) {
+      let bqBegin = ""
+      let bqEnd = ""
+      if (prop[i - 1].class !== "bq") {
+        bqBegin = `${"<blockquote>\n".repeat(prop[i].stack)}<p>\n`
+      }
+      else {
+        bqBegin = `${"<blockquote>\n".repeat(prop[i].stack - prop[i - 1].stack)}<p>\n`
+      }
+      if (prop[i + 1].class !== "bq") {
+        bqEnd = `${"</blockquote>\n".repeat(prop[i].stack)}</p>\n`
+      }
+      else {
+        bqEnd = `${"</blockquote>\n".repeat(prop[i].stack - prop[i + 1].stack)}</p>\n`
+      }
+      return `${bqBegin}${work[i].replace(/^>+ /, "")}${bqEnd}`
     }
   }
   async function preEncl(work, prop, i) {
