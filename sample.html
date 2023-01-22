@@ -1,13 +1,13 @@
 <div id="container"></div>
 <script src="mdparse.js"></script>
 <script>
-let node_container = document.querySelector("#container")
+let elm_container = document.querySelector("#container")
 fetch("sample.md")
 .then(async r => {
   if (r.ok) {
     mdParse(await r.text())
     .then(r => {
-      node_container.innerHTML = r
+      elm_container.innerHTML = r
     })
   }
 })
