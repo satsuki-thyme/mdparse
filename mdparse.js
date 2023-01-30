@@ -9,6 +9,9 @@ function mdParse(src) {
     .split(/\r?\n/)
   )
   .then(rly => {
+    return escapeTag(rly)
+  })
+  .then(rly => {
     return markupBlock(rly)
   })
   .then(rly => {
@@ -409,6 +412,21 @@ function mdParse(src) {
         }
       }
     })
+  }
+  function escapeTag(rly) {
+    let work = rly[0]
+    let prop = rly[1]
+    for (let i in prop) {
+      if (prop[i].class === "preEncl" || prop[i].class === "preInd") {
+        work[i] = work[i]
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/“/g, "&quot;")
+        .replace(/ /g, "&nbsp;")
+      }
+    }
+    return [work, prop, rly[2]]
   }
   function markupBlock(rly) {
     let work = rly[0]
