@@ -1,4 +1,4 @@
-function mdParse(src) {
+function mdParse(src, parseType) {
   let liAccum = []
   let preEnclContinuation = false
   let fnCnt = []
@@ -464,6 +464,8 @@ function mdParse(src) {
             i === prop.length - 1
             ||
             prop[i + 1].class !== "p"
+            ||
+            parseType === "permissive"
           ) {
             work[i] = `<p>${work[i]}</p>`
             if (i < prop.length - 1) {
