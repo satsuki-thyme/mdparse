@@ -15,11 +15,6 @@ function mdparse(src, parseType) {
     return markupBlock(rly)
   })
   .then(rly => {
-//    let work = []
-//    for (let i in rly[0]) {
-//      work.push({"word": rly[0][i], "prop": rly[1][i]})
-//    }
-//    console.log(work)
     return markupInline(rly)
   })
   .then(rly => {
