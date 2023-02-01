@@ -1,4 +1,4 @@
-function mdParse(src, parseType) {
+function mdparse(src, parseType) {
   let liAccum = []
   let preEnclContinuation = false
   let fnCnt = []
