@@ -12,6 +12,8 @@ Markdown を HTML に変換する JavaScript のライブラリです。
   Markdown 文書のサンプル。
 * sample.jpg  
   sample.md 内で呼ばれているサンプル画像。猫。
+* mdhtmlize.html  
+  自宅で使っているページ。応用例にどうぞ。
 
 ## 説明
 * Markdown をパースして HTML を出力します。
