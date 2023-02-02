@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja-JP">
+  <head>
+    <meta charset="utf-8">
+    <title>mdhtmlize</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <base href="../">
+    <link href="base.css" rel="stylesheet">
+    <link href="color-scheme-standard.css" rel="stylesheet">
+    <script src="mdparse.js/mdparse.js"></script>
+    <script src="htmlshape.js/htmlshape.js"></script>
+    <style>
+      #container {
+        position: absolute;
+        width: 100%;
+        max-width: 600px;
+        margin: auto;
+        padding: 50px;
+        box-sizing: border-box;
+      }
+      #textarea {
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        color: var(--dark-1);
+        background-color: var(--light-1);
+        border: 1px solid var(--dark-2);
+        outline: none;
+      }
+      @media (prefers-color-scheme: dark) {
+        #textarea {
+          color: var(--light-0);
+          background-color: var(--dark-1);
+          border: 1px solid var(--dark-2);
+        }
+      }
+      html.dark #textarea {
+        color: var(--light-0);
+        background-color: var(--dark-1);
+        border: 1px solid var(--dark-2);
+      }
+      html.light #textarea {
+        color: var(--dark-1);
+        background-color: var(--light-1);
+        border: 1px solid var(--dark-2);
+      }
+    </style>
+    <script>
+      window.addEventListener("DOMContentLoaded", () => {
+        let elm_textarea = document.getElementById("textarea")
+        let elm_container = document.getElementById("container")
+        elm_textarea.style.height = elm_textarea.getBoundingClientRect().width * (9 / 16) + "px"
+        elm_container.style.height = elm_container.getBoundingClientRect().height + "px"
+        elm_container.style.inset = 0
+        elm_textarea.oninput = () => {
+          mdparse(elm_textarea.value, "permissive")
+          .then(async rly => {
+            elm_textarea.value = await htmlshape(rly)
+            elm_textarea.select()
+          })
+        }
+        elm_textarea.onclick = () => {
+          elm_textarea.value = ""
+        }
+      })
+    </script>
+  </head>
+  <body>
+    <div id="container">
+      <textarea id="textarea" placeholder="インプット / アウトプット"></textarea>
+    </div>
+  </body>
+</html>
