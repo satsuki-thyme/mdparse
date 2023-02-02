@@ -5,7 +5,7 @@ let elm_container = document.querySelector("#container")
 fetch("sample.md")
 .then(async r => {
   if (r.ok) {
-    mdParse(await r.text(), "permissive") // strict(default) or permissive. handling line breaks.
+    mdparse(await r.text(), "permissive") // strict(default) or permissive. handling line breaks.
     .then(r => {
       elm_container.innerHTML = r
     })
