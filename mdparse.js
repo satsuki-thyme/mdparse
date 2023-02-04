@@ -413,15 +413,18 @@ function mdparse(src, parseType) {
     let prop = rly[1]
     for (let i in prop) {
       if (prop[i].class === "preEncl" || prop[i].class === "preInd") {
-        work[i] = work[i]
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/“/g, "&quot;")
-        .replace(/ /g, "&nbsp;")
+        escapeTagEngine(work[i])
       }
     }
     return [work, prop, rly[2]]
+  }
+  function escapeTagEngine(src) {
+    return src
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/“/g, "&quot;")
+    .replace(/ /g, "&nbsp;")
   }
   function markupBlock(rly) {
     let work = rly[0]
@@ -605,17 +608,17 @@ function mdparse(src, parseType) {
   function markupInline(rly) {
     return rly[0].filter(rly => rly.length !== 0).map(rly => {
       return rly
-      .replace(/(?<!\\|_)_(?!_|.*<br>)(.+?)(?<!_)_(?!_)/g, "<em>$1</em>")
-      .replace(/(?<!\\|_)__(?!_|.*<br>)(.+?)(?<!_)__(?!_)/g, "<strong>$1</strong>")
-      .replace(/(?<!\\)___(?!.*<br>)(.+?)___/g, "<strong><em>$1</em></strong>")
-      .replace(/(?<!\\|\*)\*(?!\*|.*<br>)(.+?)(?<!\*)\*(?!\*)/g, "<em>$1</em>")
-      .replace(/(?<!\\|\*)\*\*(?!\*|.*<br>)(.+?)(?<!\*)\*\*(?!\*)/g, "<strong>$1</strong>")
-      .replace(/(?<!\\)\*\*\*((?!.*<br>).+?)\*\*\*/g, "<strong><em>$1</em></strong>")
-      .replace(/(?<!\\|~)~~(?!~|.*<br>)(.+?)(?<!~)~~(?!~)/g, "<del>$1</del>")
-      .replace(/(?<!\\)`(?!.*<br>)(.+)`/g, "<code>$1</code>")
+      .replace(/(?<!\\|_)_(?!_|.*<br>)(.+?)(?<!_)_(?!_)/g, `<em>$1</em>`)
+      .replace(/(?<!\\|_)__(?!_|.*<br>)(.+?)(?<!_)__(?!_)/g, `<strong>$1</strong>`)
+      .replace(/(?<!\\)___(?!.*<br>)(.+?)___/g, `<strong><em>$1</em></strong>`)
+      .replace(/(?<!\\|\*)\*(?!\*|.*<br>)(.+?)(?<!\*)\*(?!\*)/g, `<em>$1</em>`)
+      .replace(/(?<!\\|\*)\*\*(?!\*|.*<br>)(.+?)(?<!\*)\*\*(?!\*)/g, `<strong>$1</strong>`)
+      .replace(/(?<!\\)\*\*\*((?!.*<br>).+?)\*\*\*/g, `<strong><em>$1</em></strong>`)
+      .replace(/(?<!\\|~)~~(?!~|.*<br>)(.+?)(?<!~)~~(?!~)/g, `<del>$1</del>`)
+      .replace(/(?<!\\)`(?!.*<br>)(.+)`/g, rly => {return `<code>${escapeTagEngine(rly)}</code>`})
       .replace(/(?<!\\|!)\[(?!.*<br>)(.+?)(?<!\])\]\((.+?)\)/g, `<a href="$2">$1</a>`)
       .replace(/(?<!\\)!\[(?!.*<br>)(.+?)(?<!\])\]\((.+?)\)/g, `<img src="$2" alt="$1">`)
-      .replace(/(?<!\\)\\(.)/g, "$1")
+      .replace(/(?<!\\)\\(.)/g, `$1`)
     })
   }
   function procFn(rly) {
