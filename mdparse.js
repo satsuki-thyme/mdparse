@@ -441,34 +441,8 @@ function mdparse(src, parseType) {
         if (prop[i].class !== ("preEncl" || "preInd")) {
           work[i] = work[i].replace(/(?<!\\)`(?!.*<br>)(.+)`/g, rly => {return `<code>${escapeTagEngine(rly.replace(/`/g, ""))}</code>`})
         }
-        if (prop[i].class === "blank") {
-          if (i < prop.length - 1) {
-            i++
-            fn()
-          }
-          else {
-            resolve([work, prop])
-          }
-        }
-        else if (prop[i].class === "h") {
-          work[i] = h(work, i)
-          if (i < prop.length - 1) {
-            i++
-            fn()
-          }
-          else {
-            resolve([work, prop])
-          }
-        }
-        else if (prop[i].class === "p") {
-          if (
-            i === prop.length - 1
-            ||
-            prop[i + 1].class !== "p"
-            ||
-            parseType === "permissive"
-          ) {
-            work[i] = `<p>${work[i]}</p>`
+        switch (prop[i].class) {
+          case "blank":
             if (i < prop.length - 1) {
               i++
               fn()
@@ -476,44 +450,26 @@ function mdparse(src, parseType) {
             else {
               resolve([work, prop])
             }
-          }
-          else {
-            work[i + 1] = `${work[i]}${pConcat(work[i])}${work[i + 1]}`
-            work = work.slice(0, i).concat(work.slice(i + 1))
-            prop = prop.slice(0, i).concat(prop.slice(i + 1))
+            break
+          case "h":
+            work[i] = h(work, i)
             if (i < prop.length - 1) {
+              i++
               fn()
             }
             else {
               resolve([work, prop])
             }
-          }
-        }
-        else if (prop[i].class === "li") {
-          work[i] = li(work, prop, i)
-          if (i < prop.length - 1) {
-            i++
-            fn()
-          }
-          else {
-            resolve([work, prop])
-          }
-        }
-        else if (prop[i].class === "bq") {
-          work[i] = bq(work, prop, i)
-          if (i < prop.length - 1) {
-            i++
-            fn()
-          }
-          else {
-            resolve([work, prop])
-          }
-        }
-        else if (prop[i].class === "preEncl") {
-          if (prop[i].site === "middle") {
-            preEncl(work, prop, i)
-            .then(rly => {
-              work[i] = rly
+            break
+          case "p":
+            if (
+              i === prop.length - 1
+              ||
+              prop[i + 1].class !== "p"
+              ||
+              parseType === "permissive"
+            ) {
+              work[i] = `<p>${work[i]}</p>`
               if (i < prop.length - 1) {
                 i++
                 fn()
@@ -521,44 +477,106 @@ function mdparse(src, parseType) {
               else {
                 resolve([work, prop])
               }
-            })
-          }
-          else {
-            work = work.slice(0, i).concat(work.slice(i + 1))
-            prop = prop.slice(0, i).concat(prop.slice(i + 1))
-            if (i < prop.length - 1) {
-              fn()
             }
             else {
-              resolve([work, prop])
-            }
-          }
-        }
-        else if (prop[i].class === "preInd") {
-          work[i] = preInd(work, prop, i)
-          if (i < prop.length - 1) {
-            i++
-            fn()
-          }
-          else {
-            resolve([work, prop])
-          }
-        }
-        else if (prop[i].class === "table") {
-          if (prop[i].hLine === false) {
-            table(work, prop, tProp, i)
-            .then(rly => {
-              work[i] = rly
+              work[i + 1] = `${work[i]}${pConcat(work[i])}${work[i + 1]}`
+              work = work.slice(0, i).concat(work.slice(i + 1))
+              prop = prop.slice(0, i).concat(prop.slice(i + 1))
               if (i < prop.length - 1) {
-                i++
                 fn()
               }
               else {
                 resolve([work, prop])
               }
-            })
-          }
-          else {
+            }
+            break
+          case "li":
+            work[i] = li(work, prop, i)
+            if (i < prop.length - 1) {
+              i++
+              fn()
+            }
+            else {
+              resolve([work, prop])
+            }
+            break
+          case "bq":
+            work[i] = bq(work, prop, i)
+            if (i < prop.length - 1) {
+              i++
+              fn()
+            }
+            else {
+              resolve([work, prop])
+            }
+            break
+          case "preEncl":
+            if (prop[i].site === "middle") {
+              preEncl(work, prop, i)
+              .then(rly => {
+                work[i] = rly
+                if (i < prop.length - 1) {
+                  i++
+                  fn()
+                }
+                else {
+                  resolve([work, prop])
+                }
+              })
+            }
+            else {
+              work = work.slice(0, i).concat(work.slice(i + 1))
+              prop = prop.slice(0, i).concat(prop.slice(i + 1))
+              if (i < prop.length - 1) {
+                fn()
+              }
+              else {
+                resolve([work, prop])
+              }
+            }
+            break
+          case "preInd":
+            work[i] = preInd(work, prop, i)
+            if (i < prop.length - 1) {
+              i++
+              fn()
+            }
+            else {
+              resolve([work, prop])
+            }
+            break
+          case "table":
+            if (prop[i].hLine === false) {
+              table(work, prop, tProp, i)
+              .then(rly => {
+                work[i] = rly
+                if (i < prop.length - 1) {
+                  i++
+                  fn()
+                }
+                else {
+                  resolve([work, prop])
+                }
+              })
+            }
+            else {
+              work = work.slice(0, i).concat(work.slice(i + 1))
+              prop = prop.slice(0, i).concat(prop.slice(i + 1))
+              if (i < prop.length - 1) {
+                fn()
+              }
+              else {
+                resolve([work, prop])
+              }
+            }
+            break
+          case "footnote":
+            fnCnt.push(
+              {
+                "key": work[i].match(/(?<=\[\^).+?(?=\]: )/)[0],
+                "word": work[i].replace(/\[\^.+?\]: /, "")
+              }
+            )
             work = work.slice(0, i).concat(work.slice(i + 1))
             prop = prop.slice(0, i).concat(prop.slice(i + 1))
             if (i < prop.length - 1) {
@@ -567,43 +585,29 @@ function mdparse(src, parseType) {
             else {
               resolve([work, prop])
             }
-          }
-        }
-        else if (prop[i].class === "footnote") {
-          fnCnt.push(
-            {
-              "key": work[i].match(/(?<=\[\^).+?(?=\]: )/)[0],
-              "word": work[i].replace(/\[\^.+?\]: /, "")
+            break
+          case "hr":
+            work[i] = "<hr>"
+            if (i < prop.length - 1) {
+              i++
+              fn()
             }
-          )
-          work = work.slice(0, i).concat(work.slice(i + 1))
-          prop = prop.slice(0, i).concat(prop.slice(i + 1))
-          if (i < prop.length - 1) {
-            fn()
-          }
-          else {
-            resolve([work, prop])
-          }
-        }
-        else if (prop[i].class === "hr") {
-          work[i] = "<hr>"
-          if (i < prop.length - 1) {
-            i++
-            fn()
-          }
-          else {
-            resolve([work, prop])
-          }
-        }
-        else if (prop[i].class === "unmatched") {
-          console.log(`unmatched at line ${i}\n${work[i]}`)
-          if (i < prop.length - 1) {
-            i++
-            fn()
-          }
-          else {
-            resolve([work, prop])
-          }
+            else {
+              resolve([work, prop])
+            }
+            break
+          case "unmatched":
+            console.log(`unmatched at line ${i}\n${work[i]}`)
+            if (i < prop.length - 1) {
+              i++
+              fn()
+            }
+            else {
+              resolve([work, prop])
+            }
+            break
+          default:
+            console.log(`unexpected error`)
         }
       }
     })
