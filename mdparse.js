@@ -438,6 +438,9 @@ function mdparse(src, parseType) {
     return new Promise(resolve => {
       fn()
       function fn() {
+        if (prop[i].class !== ("preEncl" || "preInd")) {
+          work[i] = work[i].replace(/(?<!\\)`(?!.*<br>)(.+)`/g, rly => {return `<code>${escapeTagEngine(rly.replace(/`/g, ""))}</code>`})
+        }
         if (prop[i].class === "blank") {
           if (i < prop.length - 1) {
             i++
@@ -615,7 +618,6 @@ function mdparse(src, parseType) {
       .replace(/(?<!\\|\*)\*\*(?!\*|.*<br>)(.+?)(?<!\*)\*\*(?!\*)/g, `<strong>$1</strong>`)
       .replace(/(?<!\\)\*\*\*((?!.*<br>).+?)\*\*\*/g, `<strong><em>$1</em></strong>`)
       .replace(/(?<!\\|~)~~(?!~|.*<br>)(.+?)(?<!~)~~(?!~)/g, `<del>$1</del>`)
-      .replace(/(?<!\\)`(?!.*<br>)(.+)`/g, rly => {return `<code>${escapeTagEngine(rly.replace(/`/g, ""))}</code>`})
       .replace(/(?<!\\|!)\[(?!.*<br>)(.+?)(?<!\])\]\((.+?)\)/g, `<a href="$2">$1</a>`)
       .replace(/(?<!\\)!\[(?!.*<br>)(.+?)(?<!\])\]\((.+?)\)/g, `<img src="$2" alt="$1">`)
       .replace(/(?<!\\)\\(.)/g, `$1`)
