@@ -9,7 +9,7 @@ function mdparse(src, parseType) {
     .split(/\r?\n/)
   )
   .then(rly => {
-    return escapeTag(rly)
+    return escape(rly)
   })
   .then(rly => {
     return markupBlock(rly)
@@ -408,23 +408,28 @@ function mdparse(src, parseType) {
       }
     })
   }
-  function escapeTag(rly) {
-    let work = rly[0]
-    let prop = rly[1]
-    for (let i in prop) {
-      if (prop[i].class === "preEncl" || prop[i].class === "preInd") {
-        work[i] = escapeTagEngine(work[i])
+  function escape(rly) {
+    for (let i in rly[1]) {
+      if (rly[1][i].class === "preEncl" || rly[1][i].class === "preInd") {
+        rly[0][i] = escapeHtml(rly[0][i])
       }
+        rly[0][i] = escapeTag(rly[0][i])
     }
-    return [work, prop, rly[2]]
+    return [rly[0], rly[1], rly[2]]
   }
-  function escapeTagEngine(src) {
+  function escapeHtml(src) {
     return src
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/“/g, "&quot;")
     .replace(/ /g, "&nbsp;")
+  }
+  function escapeTag(src) {
+    return src
+    .replace(/(?<!\\)\\</g, "&lt;")
+    .replace(/(?<!\\)\\>/g, "&gt;")
+    .replace(/(?<!\\)(?<=\\<)(.*?)>/g, "$1&gt;")
   }
   function markupBlock(rly) {
     let work = rly[0]
@@ -439,7 +444,7 @@ function mdparse(src, parseType) {
       fn()
       function fn() {
         if (prop[i].class !== ("preEncl" || "preInd")) {
-          work[i] = work[i].replace(/(?<!\\)`(?!.*<br>)(.+)`/g, rly => {return `<code>${escapeTagEngine(rly.replace(/`/g, ""))}</code>`})
+          work[i] = work[i].replace(/(?<!\\)`(?!.*<br>)(.+)`/g, rly => {return `<code>${escapeHtml(rly.replace(/`/g, ""))}</code>`})
         }
         switch (prop[i].class) {
           case "blank":
