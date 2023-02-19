@@ -100,7 +100,7 @@ function mdparse(src, parseType) {
         else if (
           preEnclContinuation === false
           &&
-          /^(\t| {4})*[*+\-] (?!\[[ x]\] )/.test(work[i]) === true
+          /^(\t| {4})*(?<!\\)[*+\-] (?!\[[ x]\] )/.test(work[i]) === true
           &&
           (
             (
@@ -143,7 +143,7 @@ function mdparse(src, parseType) {
         else if (
           preEnclContinuation === false
           &&
-          /^(\t| {4})*\d+\. /.test(work[i]) === true
+          /^(\t| {4})*(?<!\\)\d+\. /.test(work[i]) === true
           &&
           (
             (
@@ -186,7 +186,7 @@ function mdparse(src, parseType) {
         else if (
           preEnclContinuation === false
           &&
-          /^(\t| {4})*[*+\-] \[[ x]\] /.test(work[i]) === true
+          /^(\t| {4})*(?<!\\)[*+\-] \[[ x]\] /.test(work[i]) === true
           &&
           (
             (
@@ -369,7 +369,7 @@ function mdparse(src, parseType) {
         else if (
           preEnclContinuation === false
           &&
-          /\[.+?\]: /.test(work[i]) === true
+          /(?<!\\(\\\\)*)\[.+?\]: /.test(work[i]) === true
         ) {
           prop[i].class = "footnote"
           if (i < work.length - 1) {
@@ -384,7 +384,7 @@ function mdparse(src, parseType) {
         else if (
           preEnclContinuation === false
           &&
-          /^[ \t]*(?!\\)([*\-_][ \t]*){3,}$/.test(work[i]) === true
+          /^[ \t]*(?<!\\(\\\\)*)([*\-_][ \t]*){3,}$/.test(work[i]) === true
         ) {
           prop[i].class = "hr"
           if (i < work.length - 1) {
@@ -411,25 +411,30 @@ function mdparse(src, parseType) {
   function escape(rly) {
     for (let i in rly[1]) {
       if (rly[1][i].class === "preEncl" || rly[1][i].class === "preInd") {
-        rly[0][i] = escapeHtml(rly[0][i])
+        rly[0][i] = rly[0][i]
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/“/g, "&quot;")
+        .replace(/ /g, "&nbsp;")
       }
-        rly[0][i] = escapeTag(rly[0][i])
+      rly[0][i] = rly[0][i]
+      .replace(/(?<!\\(?:\\\\)*)\\ /g, "&nbsp;")
+      .replace(/(?<!\\(?:\\\\)*)\\!/g, "&excl;")
+      .replace(/(?<!\\(?:\\\\)*)\\\[/g, "&lbrack;")
+      .replace(/(?<!\\(?:\\\\)*)\\]/g, "&rbrack;")
+      .replace(/(?<!\\(?:\\\\)*)\\\(/g, "&lpar;")
+      .replace(/(?<!\\(?:\\\\)*)\\\)/g, "&rpar;")
+      .replace(/(?<!\\(?:\\\\)*)\\\*/g, "&ast;")
+      .replace(/(?<!\\(?:\\\\)*)\\\|/g, "&verbar;")
+      .replace(/(?<!\\(?:\\\\)*)\\\+/g, "	&plus;")
+      .replace(/(?<!\\(?:\\\\)*)\\<(.*?)>/g, "&lt;$1&gt;")
+      .replace(/(?<!\\(?:\\\\)*)\\</g, "&lt;")
+      .replace(/(?<!\\(?:\\\\)*)\\>/g, "&gt;")
+      .replace(/(?<!\\(?:\\\\)*)\\(.)/g, "$1")
+      .replace(/\\\\/g, "\\")
     }
     return [rly[0], rly[1], rly[2]]
-  }
-  function escapeHtml(src) {
-    return src
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/“/g, "&quot;")
-    .replace(/ /g, "&nbsp;")
-  }
-  function escapeTag(src) {
-    return src
-    .replace(/(?<!\\)\\</g, "&lt;")
-    .replace(/(?<!\\)\\>/g, "&gt;")
-    .replace(/(?<!\\)(?<=\\<)(.*?)>/g, "$1&gt;")
   }
   function markupBlock(rly) {
     let work = rly[0]
@@ -444,7 +449,7 @@ function mdparse(src, parseType) {
       fn()
       function fn() {
         if (prop[i].class !== ("preEncl" || "preInd")) {
-          work[i] = work[i].replace(/(?<!\\)`(?!.*<br>)(.+)`/g, rly => {return `<code>${escapeHtml(rly.replace(/`/g, ""))}</code>`})
+          work[i] = work[i].replace(/(?<!\\(?:\\\\)*|`)`(?!.*<br>)(.+)(?<!\\(?:\\\\)*|`)`/g, rly => {return `<code>${rly.replace(/`/g, "")}</code>`})
         }
         switch (prop[i].class) {
           case "blank":
@@ -620,16 +625,15 @@ function mdparse(src, parseType) {
   function markupInline(rly) {
     return rly[0].filter(rly => rly.length !== 0).map(rly => {
       return rly
-      .replace(/(?<!\\|_)_(?!_|.*<br>)(.+?)(?<!_)_(?!_)/g, `<em>$1</em>`)
-      .replace(/(?<!\\|_)__(?!_|.*<br>)(.+?)(?<!_)__(?!_)/g, `<strong>$1</strong>`)
-      .replace(/(?<!\\)___(?!.*<br>)(.+?)___/g, `<strong><em>$1</em></strong>`)
-      .replace(/(?<!\\|\*)\*(?!\*|.*<br>)(.+?)(?<!\*)\*(?!\*)/g, `<em>$1</em>`)
-      .replace(/(?<!\\|\*)\*\*(?!\*|.*<br>)(.+?)(?<!\*)\*\*(?!\*)/g, `<strong>$1</strong>`)
-      .replace(/(?<!\\)\*\*\*((?!.*<br>).+?)\*\*\*/g, `<strong><em>$1</em></strong>`)
-      .replace(/(?<!\\|~)~~(?!~|.*<br>)(.+?)(?<!~)~~(?!~)/g, `<del>$1</del>`)
-      .replace(/(?<!\\|!)\[(?!.*<br>)(.+?)(?<!\])\]\((.+?)\)/g, `<a href="$2">$1</a>`)
-      .replace(/(?<!\\)!\[(?!.*<br>)(.+?)(?<!\])\]\((.+?)\)/g, `<img src="$2" alt="$1">`)
-      .replace(/(?<!\\)\\(.)/g, `$1`)
+      .replace(/(?<!\\(?:\\\\)*|_)_(?!_|.*<br>)(.+?)(?<!_|\\(?:\\\\)*)_(?!_)/g, `<em>$1</em>`)
+      .replace(/(?<!\\(?:\\\\)*|_)__(?!_|.*<br>)(.+?)(?<!_|\\(?:\\\\)*)__(?!_)/g, `<strong>$1</strong>`)
+      .replace(/(?<!\\(?:\\\\)*)___(?!.*<br>)(.+?)(?<!\\(?:\\\\)*)___/g, `<strong><em>$1</em></strong>`)
+      .replace(/(?<!\\(?:\\\\)*|\*)\*(?!\*|.*<br>)(.+?)(?<!\*|\\(?:\\\\)*)\*(?!\*)/g, `<em>$1</em>`)
+      .replace(/(?<!\\(?:\\\\)*|\*)\*\*(?!\*|.*<br>)(.+?)(?<!\*|\\(?:\\\\)*)\*\*(?!\*)/g, `<strong>$1</strong>`)
+      .replace(/(?<!\\(?:\\\\)*)\*\*\*((?!.*<br>).+?)(?<!\\(?:\\\\)*)\*\*\*/g, `<strong><em>$1</em></strong>`)
+      .replace(/(?<!\\(?:\\\\)*|~)~~(?!~|.*<br>)(.+?)(?<!\\(?:\\\\)*)~~(?!~)/g, `<del>$1</del>`)
+      .replace(/(?<!\\(?:\\\\)*|!)\[(?!.*<br>)(.+?)(?<!\\(?:\\\\)*)\]\((.+?)\)/g, `<a href="$2">$1</a>`)
+      .replace(/(?<!\\(?:\\\\)*)!\[(?!.*<br>)(.+?)(?<!\\(?:\\\\)*)\]\((.+?)\)/g, `<img src="$2" alt="$1">`)
     })
   }
   function procFn(rly) {
