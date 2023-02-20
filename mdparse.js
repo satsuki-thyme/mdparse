@@ -5,7 +5,7 @@ function mdparse(src, parseType) {
   let arrowIcon = `<svg class="user-cnt-arrow" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0, 0, 16, 21"><path d="M 0,0 V 2 h 8 c 3,0 6,3 6,6 0,3 -3,6 -6,6 H 7 v 2 h 1 c 4,0 8,-4 8,-8 0,-4 -4,-8 -8,-8 z"/><path d="M 6,21 7,19 3,15 7,11 6,9 0,15 Z"/></svg>`
   return classify(
     src
-    .replace(/  $/gm, "<br>")
+    .replace(/  \r?\n/g, "<br>")
     .split(/\r?\n/)
   )
   .then(rly => {
