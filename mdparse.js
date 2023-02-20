@@ -1,6 +1,7 @@
 function mdparse(src, parseType) {
   let liAccum = []
   let preEnclContinuation = false
+  let preEnclLang = {}
   let fnCnt = []
   let arrowIcon = `<svg class="user-cnt-arrow" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0, 0, 16, 21"><path d="M 0,0 V 2 h 8 c 3,0 6,3 6,6 0,3 -3,6 -6,6 H 7 v 2 h 1 c 4,0 8,-4 8,-8 0,-4 -4,-8 -8,-8 z"/><path d="M 6,21 7,19 3,15 7,11 6,9 0,15 Z"/></svg>`
   return classify(
@@ -250,6 +251,7 @@ function mdparse(src, parseType) {
           if (preEnclContinuation === false) {
             preEnclContinuation = true
             prop[i].preGrp = i
+            preEnclLang[i] = work[i].replace(/```[ \t]*/, "")
           }
           else {
             preEnclContinuation = false
@@ -283,15 +285,21 @@ function mdparse(src, parseType) {
         else if (
           preEnclContinuation === false
           &&
-          /^(\t| {4})+(?!([*\-_][ \t]*){3,}$)/.test(work[i]) === true
-          &&
           (
-            /^(\*|\+|-|\d+\.) /.test(work[i]) === false
+            /^(\t| {4})+(?!(\*|\+|-|\d+\.) |([*\-_][ \t]*){3,})/.test(work[i]) === true
             ||
             (
-              i !== prop.length - 1
+              i === 0
               &&
-              prop[i - 1] !== "li"
+              /^(\t| {4})+((\*|\+|-|\d+\.) )/.test(work[i]) === true
+            )
+            ||
+            (
+              i !== 0
+              &&
+              prop[i].class !== "li"
+              &&
+              /^(\t| {4})+((\*|\+|-|\d+\.) )/.test(work[i]) === true
             )
           )
         ) {
@@ -409,30 +417,23 @@ function mdparse(src, parseType) {
     })
   }
   function escape(rly) {
+    let tagList = /^\/?(html|head|title|base|link|style|meta|body|article|section|nav|aside|h1|h2|h3|h4|h5|h6|header|footer|address|p|hr|pre|blockquote|ol|ul|li|dl|dt|dd|figure|figcaption|main|div|a|em|strong|small|s|cite|q|dfn|abbr|code|var|samp|kbd|data|sub|sup|time|i|b|u|mark|ruby|rb|rt|rtc|rp|bdi|bdo|span|br|wbr|ins|del|img|picture|iframe|embed|object|param|video|audio|track|source|map|area|table|caption|colgroup|col|tbody|thead|tfoot|tr|td|th|form|fieldset|legend|label|input|select|option|optgroup|textarea|button|datalist|output|progress|meter|script|noscript|template|canvas|details|summary|menu|menuitem)$/
     for (let i in rly[1]) {
       if (rly[1][i].class === "preEncl" || rly[1][i].class === "preInd") {
         rly[0][i] = rly[0][i]
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/“/g, "&quot;")
-        .replace(/ /g, "&nbsp;")
+        .replace(/<.+?>/g, rly => {
+          if (!tagList.test(rly.match(/(?<=<).+?(?=>)/)[0])) return rly.replace(/<(\/?.*)>/g, "&lt;$1&gt;")
+          else return rly
+        })
       }
-      rly[0][i] = rly[0][i]
-      .replace(/(?<!\\(?:\\\\)*)\\ /g, "&nbsp;")
-      .replace(/(?<!\\(?:\\\\)*)\\!/g, "&excl;")
-      .replace(/(?<!\\(?:\\\\)*)\\\[/g, "&lbrack;")
-      .replace(/(?<!\\(?:\\\\)*)\\]/g, "&rbrack;")
-      .replace(/(?<!\\(?:\\\\)*)\\\(/g, "&lpar;")
-      .replace(/(?<!\\(?:\\\\)*)\\\)/g, "&rpar;")
-      .replace(/(?<!\\(?:\\\\)*)\\\*/g, "&ast;")
-      .replace(/(?<!\\(?:\\\\)*)\\\|/g, "&verbar;")
-      .replace(/(?<!\\(?:\\\\)*)\\\+/g, "	&plus;")
-      .replace(/(?<!\\(?:\\\\)*)\\<(.*?)>/g, "&lt;$1&gt;")
-      .replace(/(?<!\\(?:\\\\)*)\\</g, "&lt;")
-      .replace(/(?<!\\(?:\\\\)*)\\>/g, "&gt;")
-      .replace(/(?<!\\(?:\\\\)*)\\(.)/g, "$1")
-      .replace(/\\\\/g, "\\")
+      else {
+        rly[0][i] = rly[0][i]
+        .replace(/(?<!\\(?:\\\\)*)\\<(.*?)>/g, "&lt;$1&gt;")
+        .replace(/(?<!\\(?:\\\\)*)\\</g, "&lt;")
+        .replace(/(?<!\\(?:\\\\)*)\\>/g, "&gt;")
+        .replace(/(?<!\\(?:\\\\)*)\\(.)/g, "$1")
+        .replace(/\\\\/g, "\\")
+      }
     }
     return [rly[0], rly[1], rly[2]]
   }
@@ -1089,7 +1090,8 @@ function mdparse(src, parseType) {
       &&
       prop[i + 1].preGrp === prop[i].preGrp
     ) {
-      return `<pre><code>${work[i]}`
+      if (preEnclLang[prop[i].preGrp] !== "") return `<pre><code class="language-${preEnclLang[prop[i].preGrp]}">${work[i]}`
+      else return `<pre><code>${work[i]}`
     }
     // the pre ends, not begins
     if (
@@ -1107,7 +1109,7 @@ function mdparse(src, parseType) {
       &&
       prop[i - 1].preGrp === prop[i].preGrp
     ) {
-      return `\n${work[i]}</code></pre>`
+      return `${work[i]}</code></pre>`
     }
     // the pre begins and ends
     if (
@@ -1127,7 +1129,8 @@ function mdparse(src, parseType) {
         prop[i + 1].preGrp !== prop[i].preGrp
       )
     ) {
-      return `<pre><code>${work[i]}</code></pre>`
+      if (preEnclLang[prop[i].preGrp] !== "") return `<pre><code class="language-${preEnclLang[prop[i].preGrp]}">${work[i]}`
+      else return `<pre><code>${work[i]}`
     }
   }
   function preInd(work, prop, i) {
@@ -1149,7 +1152,7 @@ function mdparse(src, parseType) {
       &&
       prop[i + 1].class === "preInd"
     ) {
-      return `\n${work[i].replace(/^\t|^ {4}/, "")}`
+      return `${work[i].replace(/^\t|^ {4}/, "")}`
     }
     // the pre begins, not ends
     else if (
@@ -1163,7 +1166,7 @@ function mdparse(src, parseType) {
         prop[i + 1].class === "preInd"
       )
     ) {
-      return `<pre><code>${work[i].replace(/^\t|^ {4}/, "")}`
+      return `<pre><code">${work[i].replace(/^\t|^ {4}/, "")}`
     }
     // the pre ends, not begins
     else if (
@@ -1177,7 +1180,7 @@ function mdparse(src, parseType) {
         prop[i - 1].class === "preInd"
       )
     ) {
-      return `\n${work[i].replace(/^\t|^ {4}/, "")}</code></pre>`
+      return `${work[i].replace(/^\t|^ {4}/, "")}</code></pre>`
     }
     // the pre begins and ends
     else if (
