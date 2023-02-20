@@ -53,6 +53,7 @@
         elm_textarea.style.height = elm_textarea.getBoundingClientRect().width * (9 / 16) + "px"
         elm_container.style.height = elm_container.getBoundingClientRect().height + "px"
         elm_container.style.inset = 0
+        elm_textarea.focus()
         elm_textarea.oninput = () => {
           mdparse(elm_textarea.value, "permissive")
           .then(async rly => {
