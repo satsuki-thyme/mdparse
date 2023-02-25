@@ -1109,7 +1109,7 @@ function mdparse(src, parseType) {
       &&
       prop[i - 1].preGrp === prop[i].preGrp
     ) {
-      return `${work[i]}</code></pre>`
+      return `\n${work[i]}</code></pre>`
     }
     // the pre begins and ends
     if (
