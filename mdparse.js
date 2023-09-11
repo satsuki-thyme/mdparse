@@ -30,12 +30,12 @@ function mdparse(src, parseType) {
       fn()
       function fn() {
         prop[i] = {}
-        let indentElm = work[i].match(/^(?:\t| {4})+/)
+        let indentElm = work[i].match(/^(?:\t| {2})+/)
         if (indentElm === null) {
           prop[i].indent = 0
         }
         else {
-          prop[i].indent = indentElm[0].match(/\t| {4}/g).length
+          prop[i].indent = indentElm[0].match(/^(\t| {2})+/)[0].match(/\t| {2}/).length
         }
         /*
           table of if
@@ -54,9 +54,9 @@ function mdparse(src, parseType) {
         */
         // blank
         if (
-          preEnclContinuation === false
+          !preEnclContinuation
           &&
-          /^$/.test(work[i]) === true
+          /^$/.test(work[i])
         ) {
           prop[i].class = "blank"
           if (i < work.length - 1) {
@@ -69,9 +69,9 @@ function mdparse(src, parseType) {
         }
         // h
         else if (
-          preEnclContinuation === false
+          !preEnclContinuation
           &&
-          /^#{1,6} /.test(work[i]) === true
+          /^#{1,6} /.test(work[i])
         ) {
           prop[i].class = "h"
           if (i < work.length - 1) {
@@ -84,9 +84,9 @@ function mdparse(src, parseType) {
         }
         // p
         else if (
-          preEnclContinuation === false
+          !preEnclContinuation
           &&
-          /^(#{1,6}|\* |\+ |- |\d+\. |( {4,}|\t)(?!\\)|```|~~~|>+ |\||\[\^.+?\]: ?).*$|^[ \t]*(?!\\)([*\-_][ \t]*){3,}$/.test(work[i]) === false
+          !/^(#{1,6}|\* |\+ |- |\d+\. |( {2,}|\t+)|```|~~~|>+ |\||\[\^.+?\]: ?).*$|^[ \t]*([*\-_][ \t]*){3,}$/.test(work[i])
         ) {
           prop[i].class = "p"
           if (i < work.length - 1) {
@@ -99,9 +99,9 @@ function mdparse(src, parseType) {
         }
         // li with ul as parent
         else if (
-          preEnclContinuation === false
+          !preEnclContinuation
           &&
-          /^(\t| {2}| {4})*(?<!\\)[*+\-] (?!\[[ x]\] )/.test(work[i]) === true
+          /^(\t| {2})*[*+\-] (?!\[[ xX]\] )/.test(work[i])
           &&
           (
             (
@@ -142,9 +142,9 @@ function mdparse(src, parseType) {
         }
         // li with ol as parent
         else if (
-          preEnclContinuation === false
+          !preEnclContinuation
           &&
-          /^(\t| {2}| {4})*(?<!\\)\d+\. /.test(work[i]) === true
+          /^(\t| {2})*\d+\. /.test(work[i])
           &&
           (
             (
@@ -185,9 +185,9 @@ function mdparse(src, parseType) {
         }
         // task list
         else if (
-          preEnclContinuation === false
+          !preEnclContinuation
           &&
-          /^(\t| {2}| {4})*(?<!\\)[*+\-] \[[ x]\] /.test(work[i]) === true
+          /^(\t| {2})*[*+\-] \[[ x]\] /.test(work[i])
           &&
           (
             (
@@ -228,9 +228,9 @@ function mdparse(src, parseType) {
         }
         // blockquote
         else if (
-          preEnclContinuation === false
+          !preEnclContinuation
           &&
-          /^>+ /.test(work[i]) === true
+          /^>+ /.test(work[i])
         ) {
           prop[i].class = "bq"
           prop[i].stack = work[i].match(/^>+/)[0].match(/>/g).length
@@ -244,11 +244,11 @@ function mdparse(src, parseType) {
         }
         // pre with enclosing
         else if (
-          /^```|^~~~/.test(work[i]) === true
+          /^```|^~~~/.test(work[i])
         ) {
           prop[i].class = "preEncl"
           prop[i].site = "end"
-          if (preEnclContinuation === false) {
+          if (!preEnclContinuation) {
             preEnclContinuation = true
             prop[i].preGrp = i
             preEnclLang[i] = work[i].replace(/```[ \t]*/, "")
@@ -283,15 +283,15 @@ function mdparse(src, parseType) {
         }
         // pre with indentation
         else if (
-          preEnclContinuation === false
+          !preEnclContinuation
           &&
           (
-            /^(\t| {2}| {4})+(?!(\*|\+|-|\d+\.) |([*\-_][ \t]*){3,})/.test(work[i]) === true
+            /^(\t| {2})+(?!(\*|\+|-|\d+\.) |([*\-_][ \t]*){3,})/.test(work[i])
             ||
             (
               i === 0
               &&
-              /^(\t| {2}| {4})+((\*|\+|-|\d+\.) )/.test(work[i]) === true
+              /^(\t| {2})+((\*|\+|-|\d+\.) )/.test(work[i])
             )
             ||
             (
@@ -299,7 +299,7 @@ function mdparse(src, parseType) {
               &&
               prop[i].class !== "li"
               &&
-              /^(\t| {2}| {4})+((\*|\+|-|\d+\.) )/.test(work[i]) === true
+              /^(\t| {2})+((\*|\+|-|\d+\.) )/.test(work[i])
             )
           )
         ) {
@@ -314,13 +314,13 @@ function mdparse(src, parseType) {
         }
         // table
         else if (
-          preEnclContinuation === false
+          !preEnclContinuation
           &&
-          /^\|/.test(work[i]) === true
+          /^\|/.test(work[i])
         ) {
           prop[i].class = "table"
           let hLine = false
-          if (/^(\| ?:?-+:? ?)+\|/.test(work[i]) === true) {
+          if (/^(\| ?:?-+:? ?)+\|/.test(work[i])) {
             hLine = true
           }
           if (
@@ -375,9 +375,9 @@ function mdparse(src, parseType) {
         }
         // footnote
         else if (
-          preEnclContinuation === false
+          !preEnclContinuation
           &&
-          /(?<!\\(\\\\)*)\[.+?\]: /.test(work[i]) === true
+          /(?<!\\(\\\\)*)\[.+?\]: /.test(work[i])
         ) {
           prop[i].class = "footnote"
           if (i < work.length - 1) {
@@ -390,9 +390,9 @@ function mdparse(src, parseType) {
         }
         // hr
         else if (
-          preEnclContinuation === false
+          !preEnclContinuation
           &&
-          /^[ \t]*(?<!\\(\\\\)*)([*\-_][ \t]*){3,}$/.test(work[i]) === true
+          /^[ \t]*(?<!\\(\\\\)*)([*\-_][ \t]*){3,}$/.test(work[i])
         ) {
           prop[i].class = "hr"
           if (i < work.length - 1) {
@@ -886,7 +886,7 @@ function mdparse(src, parseType) {
     if (prop[i].task === false) {
       return `<li>`
     }
-    else if (/^.*\[ \]/.test(work[i]) === true) {
+    else if (/^.*\[ \]/.test(work[i])) {
       return `<li class="user-cnt-tasklist"><input type="checkbox"> `
     }
     else {
@@ -1152,7 +1152,7 @@ function mdparse(src, parseType) {
       &&
       prop[i + 1].class === "preInd"
     ) {
-      return `${work[i].replace(/^\t|^ {4}/, "")}`
+      return `${work[i].replace(/^(\t| {2})/, "")}`
     }
     // the pre begins, not ends
     else if (
@@ -1166,7 +1166,7 @@ function mdparse(src, parseType) {
         prop[i + 1].class === "preInd"
       )
     ) {
-      return `<pre><code">${work[i].replace(/^\t|^ {2}|^ {4}/, "")}`
+      return `<pre><code">${work[i].replace(/^(\t| {2})/, "")}`
     }
     // the pre ends, not begins
     else if (
@@ -1180,7 +1180,7 @@ function mdparse(src, parseType) {
         prop[i - 1].class === "preInd"
       )
     ) {
-      return `${work[i].replace(/^\t|^ {2}|^ {4}/, "")}</code></pre>`
+      return `${work[i].replace(/^(\t| {2})/, "")}</code></pre>`
     }
     // the pre begins and ends
     else if (
@@ -1196,7 +1196,7 @@ function mdparse(src, parseType) {
         prop[i + 1].class !== "preInd"
       )
     ) {
-      return `<pre><code>${work[i].replace(/^\t|^ {2}|^ {4}/, "")}</code></pre>`
+      return `<pre><code>${work[i].replace(/^(\t| {2})/, "")}</code></pre>`
     }
   }
   async function table(work, prop, tProp, i) {
