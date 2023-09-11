@@ -101,7 +101,7 @@ function mdparse(src, parseType) {
         else if (
           preEnclContinuation === false
           &&
-          /^(\t| {4})*(?<!\\)[*+\-] (?!\[[ x]\] )/.test(work[i]) === true
+          /^(\t| {2}| {4})*(?<!\\)[*+\-] (?!\[[ x]\] )/.test(work[i]) === true
           &&
           (
             (
@@ -144,7 +144,7 @@ function mdparse(src, parseType) {
         else if (
           preEnclContinuation === false
           &&
-          /^(\t| {4})*(?<!\\)\d+\. /.test(work[i]) === true
+          /^(\t| {2}| {4})*(?<!\\)\d+\. /.test(work[i]) === true
           &&
           (
             (
@@ -187,7 +187,7 @@ function mdparse(src, parseType) {
         else if (
           preEnclContinuation === false
           &&
-          /^(\t| {4})*(?<!\\)[*+\-] \[[ x]\] /.test(work[i]) === true
+          /^(\t| {2}| {4})*(?<!\\)[*+\-] \[[ x]\] /.test(work[i]) === true
           &&
           (
             (
@@ -286,12 +286,12 @@ function mdparse(src, parseType) {
           preEnclContinuation === false
           &&
           (
-            /^(\t| {4})+(?!(\*|\+|-|\d+\.) |([*\-_][ \t]*){3,})/.test(work[i]) === true
+            /^(\t| {2}| {4})+(?!(\*|\+|-|\d+\.) |([*\-_][ \t]*){3,})/.test(work[i]) === true
             ||
             (
               i === 0
               &&
-              /^(\t| {4})+((\*|\+|-|\d+\.) )/.test(work[i]) === true
+              /^(\t| {2}| {4})+((\*|\+|-|\d+\.) )/.test(work[i]) === true
             )
             ||
             (
@@ -299,7 +299,7 @@ function mdparse(src, parseType) {
               &&
               prop[i].class !== "li"
               &&
-              /^(\t| {4})+((\*|\+|-|\d+\.) )/.test(work[i]) === true
+              /^(\t| {2}| {4})+((\*|\+|-|\d+\.) )/.test(work[i]) === true
             )
           )
         ) {
@@ -1166,7 +1166,7 @@ function mdparse(src, parseType) {
         prop[i + 1].class === "preInd"
       )
     ) {
-      return `<pre><code">${work[i].replace(/^\t|^ {4}/, "")}`
+      return `<pre><code">${work[i].replace(/^\t|^ {2}|^ {4}/, "")}`
     }
     // the pre ends, not begins
     else if (
@@ -1180,7 +1180,7 @@ function mdparse(src, parseType) {
         prop[i - 1].class === "preInd"
       )
     ) {
-      return `${work[i].replace(/^\t|^ {4}/, "")}</code></pre>`
+      return `${work[i].replace(/^\t|^ {2}|^ {4}/, "")}</code></pre>`
     }
     // the pre begins and ends
     else if (
@@ -1196,7 +1196,7 @@ function mdparse(src, parseType) {
         prop[i + 1].class !== "preInd"
       )
     ) {
-      return `<pre><code>${work[i].replace(/^\t|^ {4}/, "")}</code></pre>`
+      return `<pre><code>${work[i].replace(/^\t|^ {2}|^ {4}/, "")}</code></pre>`
     }
   }
   async function table(work, prop, tProp, i) {
