@@ -1,13 +1,3 @@
-<
-
->
-
-"
-
-&
-
-<div>div</div>
-
 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 改行（末尾にスペース x 2 ） newline ( trailing space x 2 )  
 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
@@ -71,14 +61,14 @@
 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
 
 * 順序なしリスト Unordered lists (*)
-	* 順序なしリスト Unordered lists (*)
-		* 順序なしリスト Unordered lists (*)
-	* 順序なしリスト Unordered lists (*)
-		* 順序なしリスト Unordered lists (*)
-		* 順序なしリスト Unordered lists (*)
-	* 順序なしリスト Unordered lists (*)
-	* 順序なしリスト Unordered lists (*)
-		* 順序なしリスト Unordered lists (*)
+    * 順序なしリスト Unordered lists (*)
+        * 順序なしリスト Unordered lists (*)
+    * 順序なしリスト Unordered lists (*)
+        * 順序なしリスト Unordered lists (*)
+        * 順序なしリスト Unordered lists (*)
+    * 順序なしリスト Unordered lists (*)
+    * 順序なしリスト Unordered lists (*)
+        * 順序なしリスト Unordered lists (*)
 
 + 順序なしリスト Unordered lists (+)
 + 順序なしリスト Unordered lists (+)
@@ -91,38 +81,38 @@
 1. 順序付きリスト Ordered lists
 2. 順序付きリスト Ordered lists
 3. 順序付きリスト Ordered lists
-	* 順序なしリスト Unordered lists (*)
-		* 順序なしリスト Unordered lists (*)
-			1. 順序付きリスト Ordered lists
-	* 順序なしリスト Unordered lists (*)
-		1. 順序付きリスト Ordered lists
-		2. 順序付きリスト Ordered lists
-			* 順序なしリスト Unordered lists (*)
-			* 順序なしリスト Unordered lists (*)
+    * 順序なしリスト Unordered lists (*)
+        * 順序なしリスト Unordered lists (*)
+            1. 順序付きリスト Ordered lists
+    * 順序なしリスト Unordered lists (*)
+        1. 順序付きリスト Ordered lists
+        2. 順序付きリスト Ordered lists
+            * 順序なしリスト Unordered lists (*)
+            * 順序なしリスト Unordered lists (*)
 4. 順序付きリスト Ordered lists
 
 * [x] タスクリスト Task lists
-	* [x] タスクリスト Task lists
-		* [ ] タスクリスト Task lists
-	* [x] タスクリスト Task lists
-	* [x] タスクリスト Task lists
-		* [ ] タスクリスト Task lists
+    * [x] タスクリスト Task lists
+        * [ ] タスクリスト Task lists
+    * [x] タスクリスト Task lists
+    * [x] タスクリスト Task lists
+        * [ ] タスクリスト Task lists
 
 * 順序なしリスト Unordered lists
-	* [x] タスクリスト Task lists
-	* 順序なしリスト Unordered lists
-		* 順序なしリスト Unordered lists
-	* [x] タスクリスト Task lists
-	* [x] タスクリスト Task lists
-	* 順序なしリスト Unordered lists
-	* 順序なしリスト Unordered lists
-		* 順序なしリスト Unordered lists
+    * [x] タスクリスト Task lists
+    * 順序なしリスト Unordered lists
+        * 順序なしリスト Unordered lists
+    * [x] タスクリスト Task lists
+    * [x] タスクリスト Task lists
+    * 順序なしリスト Unordered lists
+    * 順序なしリスト Unordered lists
+        * 順序なしリスト Unordered lists
 
-脚注 Footnotes 1 [^footnotes-one]
+脚注キー footnote key 1 [^footnote-1]
 
-脚注 Footnotes 1a [^footnotes-one]
+脚注キー footnote key 3 [^footnote-3]
 
-脚注 Footnotes 2 [^footnotes-two] 脚注 Footnotes 3 [^footnotes-three]
+脚注キー footnote key 1a [^footnote-1] 脚注キー footnote key 2 [^footnote-2]
 
 *アスタリスクによるイタリック Italic*
 
@@ -175,88 +165,146 @@ ___改行を含む
 文章内での `引用コード Quoting code` の記述
 
 ```
-個別ブロックでの引用コード 1 Quoting code into distinct block 1
-個別ブロックでの引用コード 1 Quoting code into distinct block 1
+個別ブロックでの引用コード（バッククォート） 1  Quoting code into distinct block (back quote) 1 
+個別ブロックでの引用コード（バッククォート） 1  Quoting code into distinct block (back quote) 1 
+個別ブロックでの引用コード（バッククォート） 1  Quoting code into distinct block (back quote) 1 
+```
+
+```
+個別ブロックでの引用コード（バッククォート） 2  Quoting code into distinct block (back quote) 2 
+個別ブロックでの引用コード（バッククォート） 2  Quoting code into distinct block (back quote) 2 
 ```
 ```
-個別ブロックでの引用コード 2 Quoting code into distinct block 2
-個別ブロックでの引用コード 2 Quoting code into distinct block 2
+個別ブロックでの引用コード（バッククォート） 3  Quoting code into distinct block (back quote) 3 
 ```
-	* 個別ブロックでの引用コード 3 Quoting code into distinct block 3
-	* 個別ブロックでの引用コード 3 Quoting code into distinct block 3
 
-	* 個別ブロックでの引用コード 4 Quoting code into distinct block 4
-	* 個別ブロックでの引用コード 4 Quoting code into distinct block 4
+↓ 個別ブロックでの引用コード（バッククォート） 4  （コード部なし） Quoting code into distinct block (back quote) 4  (No code part)
+```
+```
 
+    * 個別ブロックでの引用コード（インデント） 5 Quoting code into distinct block (indentation) 5
+    * 個別ブロックでの引用コード（インデント） 5 Quoting code into distinct block (indentation) 5
+    * 個別ブロックでの引用コード（インデント） 5 Quoting code into distinct block (indentation) 5
 
-| heading1 | heading2 | heading3 |
-|:---------|:--------:|---------:|
-| Contents1 | Contents2 | contents3 |
-| Contents4 | Contents5 | contents6 |
-| Contents7 | Contents8 | contents9 |
+    * 個別ブロックでの引用コード（インデント） 6 Quoting code into distinct block (indentation) 6
+    * 個別ブロックでの引用コード（インデント） 6 Quoting code into distinct block (indentation) 6
 
+    * 個別ブロックでの引用コード（インデント） 7 Quoting code into distinct block (indentation) 7
 
-| heading1 | heading2 | heading3 |
-|:---------|:--------:|---------:|
-| Contents1 | Contents2 | contents3 |
-| Contents4 | Contents5 | contents6 |
-| Contents7 | Contents8 | contents9 |
+| Content11 | Content12 | Content13 |
+| Content14 | Content15 | Content16 |
+| Content17 | Content18 | Content19 |
+
+| Heading21 | Heading22 | Heading23 |
+|:----------|:---------:|----------:|
+| Content21 | Content22 | Content23 |
+| Content24 | Content25 | Content26 |
+| Content27 | Content28 | Content29 |
+
+| Heading31 | Heading32 | Heading33 |
+| Heading34 | Heading35 | Heading36 |
+| --------- | --------- | --------- |
+| Content31 | Content32 | Content33 |
+| Content34 | Content35 | Content36 |
+| Content37 | Content38 | Content39 |
+
+| --------- | --------- | --------- |
+| Content41 | Content42 | Content43 |
+| Content44 | Content45 | Content46 |
+| Content47 | Content48 | Content49 |
+
+| Content51 | Content52 | Content53 |
+
+| Heading61 | Heading62 | Heading63 |
+| Heading64 | Heading65 | Heading66 |
+| --------- | --------- | --------- |
+
+| Heading71 | Heading72 | Heading73 |
+| Heading74 | Heading75 | Heading76 |
+| --------- | --------- | --------- |
+| Content71 | Content72 | Content73 |
+| Content74 | Content75 | Content76 |
+| Content77 | Content78 | Content79 |
+| --------- | --------- | --------- | 
+
 
 [リンク Links](.#)
 
 ![画像 Images](sample.jpg)
 
-[^footnotes-three]: 脚注本文 Footnotes Words 3
-[^footnotes-fore]: 脚注本文 Footnotes Words 4
-[^footnotes-one]: 脚注本文 Footnotes Words 1
-[^footnotes-one]: 脚注本文 Footnotes Words 1
-[^footnotes-two]: 脚注本文 Footnotes Words 2
+[^footnote-3]: 脚注コンテンツ footnote content 3
+[^footnote-4]: 脚注コンテンツ footnote content 4
+[^footnote-1]: 脚注コンテンツ footnote content 1
+[^footnote-2]: 脚注コンテンツ footnote content 2
+[^footnote-5]: 脚注コンテンツ footnote content 5
+[^footnote-3]: 脚注コンテンツ footnote content 3
 
 ***
-アスタリスクによる横罫線 horizontal rule with asterisks  
+↑ アスタリスクによる横罫線 horizontal rule with asterisks
 ---
-ハイフンによる横罫線 horizontal rule with hyphens  
+↑ ハイフンによる横罫線 horizontal rule with hyphens
 ___
-アンダーバーによる横罫線 horizontal rule with underbar  
- * * *
-アスタリスクによる横罫線（スペース区切り） horizontal rule with asterisks (separated by space)
- - - -
-ハイフンによる横罫線（スペース区切り） horizontal rule with hyphens (separated by space)
- _ _ _
-アンダーバーによる横罫線（スペース区切り） horizontal rule with underbar (separated by space)
-	*	*	*
-アスタリスクによる横罫線（タブ区切り） horizontal rule with asterisks (separated by tab)
-	-	-	-
-ハイフンによる横罫線（タブ区切り） horizontal rule with hyphens (separated by tab)
-	_	_	_
-アンダーバーによる横罫線（タブ区切り） horizontal rule with underbar (separated by tab)
+↑ アンダーバーによる横罫線 horizontal rule with underbar
+* * *
+↑ アスタリスクによる横罫線（スペース区切り） horizontal rule with asterisks (separated by space)
+- - -
+↑ ハイフンによる横罫線（スペース区切り） horizontal rule with hyphens (separated by space)
+_ _ _
+↑ アンダーバーによる横罫線（スペース区切り） horizontal rule with underbar (separated by space)
+*	*	*
+↑ アスタリスクによる横罫線（タブ区切り） horizontal rule with asterisks (separated by tab)
+-	-	-
+↑ ハイフンによる横罫線（タブ区切り） horizontal rule with hyphens (separated by tab)
+_	_	_
+↑ アンダーバーによる横罫線（タブ区切り） horizontal rule with underbar (separated by tab)
 
 <!--非表示 Hiding content with comments-->
 
-\Markdown の無視 Ignoring Markdown formatting  
-\_イタリック Italic_  
-\*イタリック Italic*  
-\~~取り消し Strikethrough~~  
-\[リンク Links](.#)  
-\![画像 Images](sample.jpg)  
+\\Markdown の無視 Ignoring Markdown formatting  
+Markdown の無視 Ignoring Markdown formatting => \_イタリック Italic_ <= Markdown の無視 Ignoring Markdown formatting  
+Markdown の無視 Ignoring Markdown formatting => \*イタリック Italic* <= Markdown の無視 Ignoring Markdown formatting  
+Markdown の無視 Ignoring Markdown formatting => \__太字 Strong__ <= Markdown の無視 Ignoring Markdown formatting  
+Markdown の無視 Ignoring Markdown formatting => \**太字 Strong** <= Markdown の無視 Ignoring Markdown formatting  
+Markdown の無視 Ignoring Markdown formatting => \~~取り消し Strikethrough~~ <= Markdown の無視 Ignoring Markdown formatting  
+Markdown の無視 Ignoring Markdown formatting => \[リンク Links](.#) <= Markdown の無視 Ignoring Markdown formatting  
+Markdown の無視 Ignoring Markdown formatting => \![画像 Images](sample.jpg) <= Markdown の無視 Ignoring Markdown formatting
+
 \***
-アスタリスクによる横罫線 horizontal rule with asterisks  
+
+↑ アスタリスクによる横罫線 1 horizontal rule with asterisks 1
+
 \---
-ハイフンによる横罫線 horizontal rule with hyphens  
+
+↑ ハイフンによる横罫線 1 horizontal rule with hyphens 1
+
 \___
-横罫アンダーバーによる線 holirontal rule with underbar  
- \* * *
-アスタリスクによる横罫線（スペース区切り） horizontal rule with asterisks (separated by space)  
- \- - -
-ハイフンによる横罫線（スペース区切り） horizontal rule with hyphens (separated by space)  
- \_ _ _
-横罫アンダーバーによる線（スペース区切り） holirontal rule with underbar (separated by space)  
-	\*	*	*
-アスタリスクによる横罫線（タブ区切り） horizontal rule with asterisks (separated by tab)  
-	\-	-	-
-ハイフンによる横罫線（タブ区切り） horizontal rule with hyphens (separated by tab)  
-	\_	_	_
-横罫アンダーバーによる線（タブ区切り） holirontal rule with underbar (separated by tab)  
+
+↑ 横罫アンダーバーによる線 1 holirontal rule with underbar 1
+
+\* * *
+
+↑ アスタリスクによる横罫線（スペース区切り） 2 horizontal rule with asterisks (separated by space) 2
+
+\- - -
+
+↑ ハイフンによる横罫線（スペース区切り） 2 horizontal rule with hyphens (separated by space) 2
+
+\_ _ _
+
+↑ 横罫アンダーバーによる線（スペース区切り） 2 holirontal rule with underbar (separated by space) 2
+
+\*	*	*
+
+↑ アスタリスクによる横罫線（タブ区切り） 3 horizontal rule with asterisks (separated by tab) 3
+
+\-	-	-
+
+↑ ハイフンによる横罫線（タブ区切り） 3 horizontal rule with hyphens (separated by tab) 3
+
+\_	_	_
+
+↑ 横罫アンダーバーによる線（タブ区切り） 3 holirontal rule with underbar (separated by tab) 3
+
 
 \```
 個別ブロックでの引用コード Quoting code into distinct block

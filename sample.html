@@ -1,11 +1,11 @@
 <div id="container"></div>
 <script src="mdparse.js"></script>
 <script>
-let elm_container = document.querySelector("#container")
-fetch("sample.md")
+let elm_container = document.querySelector(`#container`)
+fetch(`sample.md`)
 .then(async r => {
   if (r.ok) {
-    mdparse(await r.text(), "permissive") // strict(default) or permissive. handling line breaks.
+    mdparse(await r.text(), `permissive`) // strict(default) or permissive. handling line breaks.
     .then(r => {
       elm_container.innerHTML = r
     })
@@ -13,7 +13,7 @@ fetch("sample.md")
 })
 </script>
 <style>
-.user-cnt-tasklist {
+li:has([type="checkbox"]) {
   list-style: none;
   text-indent: -1.5em;
 }
