@@ -1,13 +1,12 @@
 function mdparse(src, parseType) {
   let work = src
-  .replace(/  (\r?\n|$)/g, `<br>`)
+  .replace(/\\/g, `\\\\`)
+  .replace(/  \r?\n>+ |  (\r?\n|$)/g, `<br>`)
   .split(/\r?\n/)
   let iLast = work.length - 1
-  let indentSet = `( {2}|\\t)`
-  let re_indent = null
   let liContinuation = false
-  let liAccum = []
   let preEncContinuation = false
+  let re_indent = null
   let arrowIcon = // for footnote
   `<svg class="user-cnt-arrow" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0, 0, 16, 21"><path d="M 0,0 V 2 h 8 c 3,0 6,3 6,6 0,3 -3,6 -6,6 H 7 v 2 h 1 c 4,0 8,-4 8,-8 0,-4 -4,-8 -8,-8 z"/><path d="M 6,21 7,19 3,15 7,11 6,9 0,15 Z"/></svg>`
   let re_blank = new RegExp(`^[ \\t]*$`)
@@ -23,7 +22,7 @@ function mdparse(src, parseType) {
   let re_table = new RegExp(`^\\|.*\\|$`)
   let re_footnote = new RegExp(`(?<!\\\\(\\\\\\\\)*)\\[.+?\\]: `)
   let re_hr = new RegExp(`^(?<!\\\\(\\\\\\\\)*)(\\*[ \\t]*|-[ \\t]*|_[ \\t]*){3,}$`)
-return classify(work)
+  return classify(work)
   .then(rly => {
     return indent(rly)
   })
@@ -52,7 +51,7 @@ return classify(work)
     let prop = []
     let rowNumAttach = 0
     let i = 0
-    return new Promise(resolve => {
+      return new Promise(resolve => {
       fn()
       function fn() {
         prop[i] = {}
@@ -66,7 +65,7 @@ return classify(work)
           5. li with ol as parent
           6. blockquote
           7. pre with enclosing begin or end
-          8. pre with enclosing continues
+          8. pre with enclosing continue
           9. pre with indentation
           10. table
           11. footnote
@@ -255,7 +254,7 @@ return classify(work)
           re_bq.test(work[i])
         ) {
           prop[i].class = `bq`
-          prop[i].stack = work[i].match(/^>+/)[0].length
+          prop[i].bqStack = work[i].match(/^>+/)[0].length
           if (i < iLast) {
             i++
             fn()
@@ -495,7 +494,7 @@ return classify(work)
     let itNum = Math.min([...itDiff.reduce(function(a, b) {return (b = String(b), this.set(b, c(a, (this.get(b) + 1 || 1), b)), a)}.bind(new Map), []).pop()].map(rly => Number(rly)))
     for (let i in prop) {
       let indentBlob = (work[i].match(/^[ \t]*/) || [``])[0]
-      prop[i].indentNum = Math.ceil(isNum !==0 ? (indentBlob.match(/ /g) || []).length / isNum : 0) + Math.ceil(itNum !== 0 ? (indentBlob.match(/\t/g) || []).length / itNum : 0)
+      prop[i].indentNum = Math.floor(isNum !==0 ? (indentBlob.match(/ /g) || []).length / isNum : 0) + Math.floor(itNum !== 0 ? (indentBlob.match(/\t/g) || []).length / itNum : 0)
     }
     return prop
   }
@@ -529,17 +528,18 @@ return classify(work)
     }
     return prop
   }
-  /* block element
-  ########     ##           #######      ######     ##    ##          ########    ##          ########    ##     ##    ########    ##    ##    ######## 
-  ##     ##    ##          ##     ##    ##    ##    ##   ##           ##          ##          ##          ###   ###    ##          ###   ##       ##    
-  ##     ##    ##          ##     ##    ##          ##  ##            ##          ##          ##          #### ####    ##          ####  ##       ##    
-  ########     ##          ##     ##    ##          #####             ######      ##          ######      ## ### ##    ######      ## ## ##       ##    
-  ##     ##    ##          ##     ##    ##          ##  ##            ##          ##          ##          ##     ##    ##          ##  ####       ##    
-  ##     ##    ##          ##     ##    ##    ##    ##   ##           ##          ##          ##          ##     ##    ##          ##   ###       ##    
-  ########     ########     #######      ######     ##    ##          ########    ########    ########    ##     ##    ########    ##    ##       ##    
+  /*
+  ########     ##           #######      ######     ##    ##               ##          ########    ##     ##    ########    ##                 ######      #######     ##    ##    ########    ########    ##    ##    ######## 
+  ##     ##    ##          ##     ##    ##    ##    ##   ##                ##          ##          ##     ##    ##          ##                ##    ##    ##     ##    ###   ##       ##       ##          ###   ##       ##    
+  ##     ##    ##          ##     ##    ##          ##  ##                 ##          ##          ##     ##    ##          ##                ##          ##     ##    ####  ##       ##       ##          ####  ##       ##    
+  ########     ##          ##     ##    ##          #####       #######    ##          ######      ##     ##    ######      ##                ##          ##     ##    ## ## ##       ##       ######      ## ## ##       ##    
+  ##     ##    ##          ##     ##    ##          ##  ##                 ##          ##           ##   ##     ##          ##                ##          ##     ##    ##  ####       ##       ##          ##  ####       ##    
+  ##     ##    ##          ##     ##    ##    ##    ##   ##                ##          ##            ## ##      ##          ##                ##    ##    ##     ##    ##   ###       ##       ##          ##   ###       ##    
+  ########     ########     #######      ######     ##    ##               ########    ########       ###       ########    ########           ######      #######     ##    ##       ##       ########    ##    ##       ##    
   */
   function markupBlock(prop) {
     let i = 0
+    let liAccum = []
     let fContentKey = []
     let fContentWord = []
     if (preEncContinuation) {
@@ -550,7 +550,7 @@ return classify(work)
       fn()
       function fn() {
         switch (prop[i].class) {
-          /* block element / blank
+          /* block-level content / blank
           ######     ##          #####     ###    ##    ##   ## 
           ##   ##    ##         ##   ##    ####   ##    ##  ##  
           ######     ##         #######    ## ##  ##    #####   
@@ -566,7 +566,7 @@ return classify(work)
               resolve(prop)
             }
             break
-          /* block element / heading
+          /* block-level content / heading
           ##   ##    #######     #####     ######     ##    ###    ##     ######  
           ##   ##    ##         ##   ##    ##   ##    ##    ####   ##    ##       
           #######    #####      #######    ##   ##    ##    ## ##  ##    ##   ### 
@@ -574,7 +574,8 @@ return classify(work)
           ##   ##    #######    ##   ##    ######     ##    ##   ####     ######  
           */
           case `h`:
-            work[i] = h(work, i)
+            let hNum = work[i].match(/^#+/)[0].length
+            work[i] = `<h${hNum}>${work[i].replace(/^#+/, ``)}</h${hNum}>`
             if (i < iLast) {
               i++
               fn()
@@ -583,7 +584,7 @@ return classify(work)
               resolve(prop)
             }
             break
-          /* block element / paragraph
+          /* block-level content / paragraph
           ######      #####     ######      #####      ######     ######      #####     ######     ##   ## 
           ##   ##    ##   ##    ##   ##    ##   ##    ##          ##   ##    ##   ##    ##   ##    ##   ## 
           ######     #######    ######     #######    ##   ###    ######     #######    ######     ####### 
@@ -608,7 +609,7 @@ return classify(work)
               }
             }
             else {
-              work[i + 1] = `${work[i]}${pConcat(work[i])}${work[i + 1]}`
+              work[i + 1] = `${work[i]}${!/<br>$/.test(work[i]) ? ` ` : ``}${work[i + 1]}`
               work = work.slice(0, i).concat(work.slice(i + 1))
               prop = prop.slice(0, i).concat(prop.slice(i + 1))
               iLast--
@@ -620,7 +621,7 @@ return classify(work)
               }
             }
             break
-          /* block element / list
+          /* block-level content / list
           ##         ##    #######    ######## 
           ##         ##    ##            ##    
           ##         ##    #######       ##    
@@ -628,7 +629,7 @@ return classify(work)
           #######    ##    #######       ##    
           */
           case `li`:
-            work[i] = li(prop, i)
+            work[i] = list(prop, i)
             if (i < iLast) {
               i++
               fn()
@@ -637,7 +638,7 @@ return classify(work)
               resolve(prop)
             }
             break
-          /* block element / blockquote
+          /* block-level content / blockquote
           ######     ##          ######      ######    ##   ##     ######     ##    ##     ######     ########    ####### 
           ##   ##    ##         ##    ##    ##         ##  ##     ##    ##    ##    ##    ##    ##       ##       ##      
           ######     ##         ##    ##    ##         #####      ##    ##    ##    ##    ##    ##       ##       #####   
@@ -646,7 +647,7 @@ return classify(work)
                                                                       ##                                                  
           */
           case `bq`:
-            work[i] = bq(prop, i)
+            work[i] = blockquote(prop, i)
             if (i < iLast) {
               i++
               fn()
@@ -655,7 +656,7 @@ return classify(work)
               resolve(prop)
             }
             break
-            /* block element / pre enclosing
+            /* block-level content / pre enclosing
             ######     ######     #######            #######    ###    ##     ###### 
             ##   ##    ##   ##    ##                 ##         ####   ##    ##      
             ######     ######     #####              #####      ## ##  ##    ##      
@@ -663,7 +664,7 @@ return classify(work)
             ##         ##   ##    #######            #######    ##   ####     ###### 
             */          case `preEnc`:
             if (prop[i].site === `middle` && prop[i + 1].site !== `end`) {
-              work[i] = `\n${work[i]}`
+              work[i] = `${work[i]}`
               if (i < iLast) {
                 i++
                 fn()
@@ -676,7 +677,7 @@ return classify(work)
               work = work.slice(0, i).concat(work.slice(i + 1))
               prop = prop.slice(0, i).concat(prop.slice(i + 1))
               iLast--
-              work[i] = prop[i].lang !== `` ? `\n<pre><code class="language-${prop[i].lang}">${work[i]}` : `\n<pre><code>${work[i]}`
+              work[i] = prop[i].lang !== `` ? `<pre><code class="language-${prop[i].lang}">${work[i]}` : `<pre><code>${work[i]}`
               if (i < iLast) {
                 fn()
               }
@@ -688,7 +689,7 @@ return classify(work)
               work = work.slice(0, i + 1).concat(work.slice(i + 2))
               prop = prop.slice(0, i + 1).concat(prop.slice(i + 2))
               iLast--
-              work[i] = `\n${work[i]}</code></pre>`
+              work[i] = `${work[i]}</code></pre>`
               if (i < iLast) {
                 fn()
               }
@@ -701,7 +702,7 @@ return classify(work)
               prop = prop.slice(0, i).concat(prop.slice(i + 2))
               iLast--
               iLast--
-              work[i] = prop[i].lang !== `` ? `\n<pre><code class="language-${prop[i].lang}"><br></code></pre>` : `\n<pre><code><br></code></pre>`
+              work[i] = prop[i].lang !== `` ? `<pre><code class="language-${prop[i].lang}"><br></code></pre>` : `<pre><code><br></code></pre>`
               if (i < iLast) {
                 fn()
               }
@@ -710,7 +711,7 @@ return classify(work)
               }
             }
             break
-          /* block element / pre indentation
+          /* block-level content / pre indentation
           ######     ######     #######            ##    ###    ##    ######  
           ##   ##    ##   ##    ##                 ##    ####   ##    ##   ## 
           ######     ######     #####              ##    ## ##  ##    ##   ## 
@@ -721,12 +722,12 @@ return classify(work)
             /*
               table of if
               pre...
-              1. continues
+              1. continue
               2. begin, not end
               3. end, not begin
               4. begin, not end
             */
-            // pre continues
+            // pre continue
             if (
               prop[i].site === `middle`
             ) {
@@ -758,7 +759,7 @@ return classify(work)
               resolve(prop)
             }
             break
-          /* block element / table
+          /* block-level content / table
           ########     #####     ######     ##         ####### 
              ##       ##   ##    ##   ##    ##         ##      
              ##       #######    ######     ##         #####   
@@ -777,24 +778,24 @@ return classify(work)
               if (prop[i].site === `middle` && prop[i].hLine !== `current`) {
                 // continue before horizontal line
                 if (prop[i].hLine === `before`) {
-                  cellFront = `\n<th>`
+                  cellFront = `<th>`
                   cellBack = `</th>`
                 }
                 // continue after horizontal line
                 if (prop[i].hLine === `after` || prop[i].hLine === `unrelated`) {
-                  cellFront = `\n<td>`
+                  cellFront = `<td>`
                   cellBack = `</td>`
                 }
                 // begin with horizontal line
                 if (prop[i].beginWithHLine) {
-                  rowFront = `\n<table>\n<tbody>`
-                  cellFront = `\n<td>`
+                  rowFront = `<table><tbody>`
+                  cellFront = `<td>`
                   cellBack = `</td>`
                 }
                 // end with horizontal line
                 if (prop[i].hLine === `before` && prop[i + 1].hLine === `current` && prop[i + 1].site === `end`) {
-                  rowBack = `\n</tbody>\n</table>`
-                  cellFront = `\n<th>`
+                  rowBack = `</tbody></table>`
+                  cellFront = `<th>`
                   cellBack = `</th>`
                 }
               }
@@ -804,28 +805,28 @@ return classify(work)
               if (prop[i].site === `begin`) {
                 // begin before horizontal line
                 if (prop[i].hLine === `before` && prop[i + 1].hLine !== `current`) {
-                  rowFront = `\n<table>\n<thead>`
-                  cellFront = `\n<th>`
+                  rowFront = `<table><thead>`
+                  cellFront = `<th>`
                   cellBack = `</th>`
                 }
                 // begin just before horizontal line
                 if (prop[i].hLine === `before` && prop[i + 1].hLine === `current`) {
-                  rowFront = `\n<table>\n<thead>`
-                  rowBack = `\n</thead>`
-                  cellFront = `\n<th>`
+                  rowFront = `<table><thead>`
+                  rowBack = `</thead>`
+                  cellFront = `<th>`
                   cellBack = `</th>`
                 }
                 // begin unrelated to horizotal line
                 if (prop[i].hLine === `unrelated`) {
-                  rowFront = `\n<table>\n<tbody>`
-                  cellFront = `\n<td>`
+                  rowFront = `<table><tbody>`
+                  cellFront = `<td>`
                   cellBack = `</td>`
                 }
                 // begin just before horizotal line ending
                 if (prop[i].hLine === `before` && prop[i + 1].hLine === `current` && prop[i + 1].site === `end`) {
-                  rowFront = `\n<table>\n<thead>`
-                  rowBack = `\n</thead>\n</table>`
-                  cellFront = `\n<td>`
+                  rowFront = `<table><thead>`
+                  rowBack = `</thead></table>`
+                  cellFront = `<td>`
                   cellBack = `</td>`
                 }
               }
@@ -835,28 +836,28 @@ return classify(work)
               if (prop[i].site === `end`) {
                 // end standard
                 if (prop[i].hLine === `after` && prop[i - 1].hLine === `after`) {
-                  rowBack = `\n</tbody>\n</table>`
-                  cellFront = `\n<td>`
+                  rowBack = `</tbody></table>`
+                  cellFront = `<td>`
                   cellBack = `</td>`
                 }
                 // end just after horizontal line
                 if (prop[i].hLine === `after` && prop[i - 1].hLine === `before`) {
-                  rowFront = `\n<tbody>`
-                  rowBack = `\n</tbody>\n</table>`
-                  cellFront = `\n<td>`
+                  rowFront = `<tbody>`
+                  rowBack = `</tbody></table>`
+                  cellFront = `<td>`
                   cellBack = `</td>`
                 }
                 // end just after horizontal line begining
                 if (prop[i].beginWithHLine) {
-                  rowFront = `\n<table>\n<tbody>`
-                  rowBack = `\n</tbody>\n</table>`
-                  cellFront = `\n<td>`
+                  rowFront = `<table><tbody>`
+                  rowBack = `</tbody></table>`
+                  cellFront = `<td>`
                   cellBack = `</td>`
                 }
                 // end unrelated to horizotal line
                 if (prop[i].hLine === `unrelated`) {
-                  rowBack = `\n</tbody>\n</table>`
-                  cellFront = `\n<td>`
+                  rowBack = `</tbody></table>`
+                  cellFront = `<td>`
                   cellBack = `</td>`
                 }
               }
@@ -864,9 +865,9 @@ return classify(work)
               // begin & end
               //
               if (prop[i].site === `az`) {
-                rowFront = `\n<table>\n<tbody>`
-                rowBack = `\n</tbody>\n</table>`
-                cellFront = `\n<td>`
+                rowFront = `<table><tbody>`
+                rowBack = `</tbody></table>`
+                cellFront = `<td>`
                 cellBack = `</td>`
               }
               //
@@ -875,8 +876,8 @@ return classify(work)
               work[i] = work[i]
               .replace(/^\|/, ``)
               .replace(/[ \t]*(.*?)[ \t]*(?<!\\(\\\\)*)(?<!\\)\|/g, `${cellFront}$1${cellBack}`)
-              .replace(/^/, `${rowFront}\n<tr>`)
-              .replace(/$/, `\n</tr>${rowBack}`)
+              .replace(/^/, `${rowFront}<tr>`)
+              .replace(/$/, `</tr>${rowBack}`)
               if (i < iLast) {
                 i++
                 fn()
@@ -897,7 +898,7 @@ return classify(work)
               }
             }
             break
-          /* block element / footnote
+          /* block-level content / footnote
           #######     ######      ######     ########    ###    ##     ######     ########    ####### 
           ##         ##    ##    ##    ##       ##       ####   ##    ##    ##       ##       ##      
           #####      ##    ##    ##    ##       ##       ## ##  ##    ##    ##       ##       #####   
@@ -917,7 +918,7 @@ return classify(work)
               resolve(prop)
             }
             break
-          /* block element / horizontal ruler
+          /* block-level content / horizontal ruler
           ##   ##     ######     ######     ##    #######     ######     ###    ##    ########     #####     ##                 ######     ##    ##    ##         #######    ######  
           ##   ##    ##    ##    ##   ##    ##       ###     ##    ##    ####   ##       ##       ##   ##    ##                 ##   ##    ##    ##    ##         ##         ##   ## 
           #######    ##    ##    ######     ##      ###      ##    ##    ## ##  ##       ##       #######    ##                 ######     ##    ##    ##         #####      ######  
@@ -934,7 +935,7 @@ return classify(work)
               resolve(prop)
             }
             break
-          /* block element / unmatched
+          /* block-level content / unmatched
           ##    ##    ###    ##    ###    ###     #####     ########     ######    ##   ##    #######    ######  
           ##    ##    ####   ##    ####  ####    ##   ##       ##       ##         ##   ##    ##         ##   ## 
           ##    ##    ## ##  ##    ## #### ##    #######       ##       ##         #######    #####      ##   ## 
@@ -950,7 +951,7 @@ return classify(work)
               resolve(prop)
             }
             break
-          /* block element / default case
+          /* block-level content / default case
           ######     #######    #######     #####     ##    ##    ##         ########             ######     #####     #######    ####### 
           ##   ##    ##         ##         ##   ##    ##    ##    ##            ##               ##         ##   ##    ##         ##      
           ##   ##    #####      #####      #######    ##    ##    ##            ##               ##         #######    #######    #####   
@@ -966,20 +967,330 @@ return classify(work)
             else {
               resolve(prop)
             }
-          // made by "switch". this step was made by "switch"
+          // this step was made by "switch"
         }
       }
     }), fContentKey, fContentWord]
+    /* block-level content / list
+    ##         ##    #######    ######## 
+    ##         ##    ##            ##    
+    ##         ##    #######       ##    
+    ##         ##         ##       ##    
+    #######    ##    #######       ##    
+    */
+    function list(prop, i) {
+      //
+      // now not 1st & last line
+      //
+      if (i > 0 && i < iLast) {
+        // li continue
+        if (
+          (
+            prop[i].parent === prop[i - 1].parent
+            ||
+            prop[i].indentNum < prop[i - 1].indentNum
+          )
+          &&
+          prop[i].indentNum <= prop[i - 1].indentNum
+          &&
+          (
+            prop[i].parent === prop[i + 1].parent
+            ||
+            prop[i].indentNum < prop[i + 1].indentNum
+          )
+          &&
+          prop[i].indentNum <= prop[i + 1].indentNum
+        ) {
+          return `${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>`
+        }
+        // li begin
+        if (
+          (
+            (
+              prop[i].parent !== prop[i - 1].parent
+              &&
+              prop[i].indentNum === prop[i - 1].indentNum
+            )
+            ||
+            prop[i].indentNum > prop[i - 1].indentNum
+          )
+          &&
+          (
+            prop[i].parent === prop[i + 1].parent
+            ||
+            prop[i].indentNum < prop[i + 1].indentNum
+          )
+          &&
+          prop[i].indentNum <= prop[i + 1].indentNum
+        ) {
+          liAccum = liAccum.concat([prop[i].parent])
+          return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>`
+        }
+        // li end
+        if (
+          (
+            prop[i].parent === prop[i - 1].parent
+            ||
+            prop[i].indentNum < prop[i - 1].indentNum
+          )
+          &&
+          prop[i].indentNum <= prop[i - 1].indentNum
+          &&
+          (
+            (
+              prop[i].parent !== prop[i + 1].parent
+              &&
+              prop[i].indentNum === prop[i + 1].indentNum
+            )
+            ||
+            prop[i].indentNum > prop[i + 1].indentNum
+          )
+        ) {
+          return `${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>${liEnd(prop, i)}`
+        }
+        // li begin & end
+        if (
+          (
+            (
+              prop[i].parent !== prop[i - 1].parent
+              &&
+              prop[i].indentNum === prop[i - 1].indentNum
+            )
+            ||
+            prop[i].indentNum > prop[i - 1].indentNum
+          )
+          &&
+          (
+            (
+              prop[i].parent !== prop[i + 1].parent
+              &&
+              prop[i].indentNum === prop[i + 1].indentNum
+            )
+            ||
+            prop[i].indentNum > prop[i + 1].indentNum
+          )
+        ) {
+          liAccum = liAccum.concat([prop[i].parent])
+          return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>${liEnd(prop, i)}`
+        }
+      }
+      //
+      // now 1st line, not last line
+      //
+      if (i === 0 && i < iLast) {
+        // li begin
+        if (
+          prop[i].parent === prop[i + 1].parent
+          &&
+          prop[i].indentNum <= prop[i + 1].indentNum
+        ) {
+          liAccum = liAccum.concat([prop[i].parent])
+          return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>`
+        }
+        // li begin & end
+        if (
+          prop[i].parent !== prop[i + 1].parent
+          ||
+          prop[i].indentNum > prop[i + 1].indentNum
+        ) {
+          liAccum = liAccum.concat([prop[i].parent])
+          return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>${liEnd(prop, i)}`
+        }
+      }
+      //
+      // now last line, not 1st line
+      //
+      if (i > 0 && i === iLast) {
+        // li end
+        if (
+          prop[i].parent === prop[i - 1].parent
+          &&
+          prop[i].indentNum <= prop[i - 1].indentNum
+        ) {
+          return `${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>${liEnd(prop, i)}`
+        }
+        // li begin & end
+        if (
+          prop[i].parent !== prop[i - 1].parent
+          ||
+          prop[i].indentNum > prop[i - 1].indentNum
+        ) {
+          liAccum = liAccum.concat([prop[i].parent])
+          return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>${liEnd(prop, i)}`
+        }
+      }
+      //
+      // only one line exists
+      //
+      if (iLast === 0) {
+        // li begin & end
+        liAccum = liAccum.concat([prop[i].parent])
+        return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>${liEnd(prop, i)}`
+      }
+      //
+      //
+      // liEnd
+      //
+      //
+      function liEnd(prop, i) {
+        let underground = 0
+        if (
+          i < iLast
+        ) {
+          if ( // all end
+            prop[i + 1].class !== `li`
+            ||
+            (
+              prop[i].parent !== prop[i + 1].parent
+              &&
+              prop[i].indentNum === 0
+              &&
+              prop[i + 1].indentNum === 0
+            )
+          ) {
+            underground = 1
+          }
+          let diff = prop[i].indentNum - prop[i + 1].indentNum + underground
+          let liTerminator = liAccum.slice(-diff)
+          liAccum.splice(-1, diff)
+          if (liTerminator instanceof Array || typeof liTerminator === `array`) {
+            liTerminator = liTerminator.reverse().join(`></`)
+          }
+          return `</${liTerminator}>`
+        }
+        else {
+          underground = 1
+          let liTerminator = liAccum.pop(prop[i].indentNum +/*prop[i+1].indentNum*/+ underground)
+          if (liTerminator instanceof Array || typeof liTerminator === `array`) {
+            liTerminator = liTerminator.reverse().join(`></`)
+          }
+          return `</${liTerminator}>`
+        }
+      }
+      //
+      //
+      // liFront
+      //
+      //
+      function liFront(prop, i) {
+        let re_liTlStill = new RegExp(`^[ \\t]*[*+\\-] \\[ ?\\]`)
+        let re_liTlAlready = new RegExp(`^[ \\t]*[*+\\-] \\[[xX]\\]`)
+        if (!prop[i].task) {
+          return `<li>`
+        }
+        if (re_liTlStill.test(work[i])) {
+          return `<li><input type="checkbox">`
+        }
+        if (re_liTlAlready.test(work[i])) {
+          return `<li><input type="checkbox" checked>`
+        }
+      }
+    }
+    /* block-level content / blockquote
+    ######     ##          ######      ######    ##   ##     ######     ##    ##     ######     ########    ####### 
+    ##   ##    ##         ##    ##    ##         ##  ##     ##    ##    ##    ##    ##    ##       ##       ##      
+    ######     ##         ##    ##    ##         #####      ##    ##    ##    ##    ##    ##       ##       #####   
+    ##   ##    ##         ##    ##    ##         ##  ##     ## ## ##    ##    ##    ##    ##       ##       ##      
+    ######     #######     ######      ######    ##   ##     ######      ######      ######        ##       ####### 
+                                                                ##                                                  
+    */
+    function blockquote(prop, i) {
+      /*
+        table of if
+        blockquote...
+        1. continue
+        2. begin, not end
+        3. end, not begin
+        4. begin and end
+      */
+      //
+      // now not 1st & last line
+      //
+      if (i > 0 && i < iLast) {
+        // 1. continue
+        if (
+          prop[i].bqStack <= prop[i - 1].bqStack
+          &&
+          prop[i].bqStack <= prop[i + 1].bqStack
+        ) {
+          return `<br>${work[i].replace(/^>+ /, ``)}`
+        }
+        // 2. begin, not end
+        if (
+          prop[i].bqStack > (prop[i - 1].bqStack || 0)
+          &&
+          prop[i].bqStack <= prop[i + 1].bqStack
+        ) {
+          return `${`<blockquote>`.repeat(prop[i].bqStack - (prop[i - 1].bqStack || 0))}${work[i].replace(/^>+ /, ``)}`
+        }
+        // 3. end, not begin
+        if (
+          prop[i].bqStack <= prop[i - 1].bqStack
+          &&
+          prop[i].bqStack > (prop[i + 1].bqStack || 0)
+        ) {
+          return `${work[i].replace(/^>+ /, ``)}${`</blockquote>`.repeat(prop[i].bqStack - (prop[i + 1].bqStack || 0))}`
+        }
+        // 4. begin and end
+        if (
+          prop[i].bqStack > (prop[i - 1].bqStack || 0)
+          &&
+          prop[i].bqStack > (prop[i + 1].bqStack || 0)
+        ) {
+          return `${`<blockquote>`.repeat(prop[i].bqStack - (prop[i - 1].bqStack || 0))}${work[i].replace(/^>+ /, ``)}${`</blockquote>`.repeat(prop[i].bqStack - (prop[i + 1].bqStack || 0))}`
+        }
+      }
+      //
+      // now 1st line, not last line
+      //
+      if (i === 0 && i < iLast) {
+        // 2. begin, not end
+        if (
+          prop[i].bqStack <= prop[i + 1].bqStack
+        ) {
+          return `${`<blockquote>`.repeat(prop[i].bqStack)}${work[i].replace(/^>+ /, ``)}`
+        }
+        // 4. begin and end
+        if (
+          prop[i].bqStack > (prop[i + 1].bqStack || 0)
+        ) {
+          return `${`<blockquote>`.repeat(prop[i].bqStack)}${work[i].replace(/^>+ /, ``)}${`</blockquote>`.repeat(prop[i].bqStack - (prop[i + 1].bqStack || 0))}`
+        }
+      }
+      //
+      // now last line, not 1st line
+      //
+      if (i > 0 && i === iLast) {
+        // 3. end, not begin
+        if (
+          prop[i].bqStack <= prop[i - 1].bqStack
+        ) {
+          return `${work[i].replace(/^>+ /, ``)}${`</blockquote>`.repeat(prop[i].bqStack)}`
+        }
+        // 4. begin and end
+        if (
+          prop[i].bqStack > (prop[i - 1].bqStack || 0)
+        ) {
+          return `${`<blockquote>`.repeat(prop[i].bqStack - (prop[i - 1].bqStack || 0))}${work[i].replace(/^>+ /, ``)}${`</blockquote>`.repeat(prop[i].bqStack)}`
+        }
+      }
+      //
+      // only one line exists
+      //
+      if (0 === iLast) {
+        return `${`<blockquote>`.repeat(prop[i].bqStack)}${work[i].replace(/^>+ /, ``)}${`</blockquote>`.repeat(prop[i].bqStack)}`
+      }
+    }
   }
-  /* inline element
-  ####    ##    ##    ##          ####    ##    ##    ########          ########    ##          ########    ##     ##    ########    ##    ##    ######## 
-   ##     ###   ##    ##           ##     ###   ##    ##                ##          ##          ##          ###   ###    ##          ###   ##       ##    
-   ##     ####  ##    ##           ##     ####  ##    ##                ##          ##          ##          #### ####    ##          ####  ##       ##    
-   ##     ## ## ##    ##           ##     ## ## ##    ######            ######      ##          ######      ## ### ##    ######      ## ## ##       ##    
-   ##     ##  ####    ##           ##     ##  ####    ##                ##          ##          ##          ##     ##    ##          ##  ####       ##    
-   ##     ##   ###    ##           ##     ##   ###    ##                ##          ##          ##          ##     ##    ##          ##   ###       ##    
-  ####    ##    ##    ########    ####    ##    ##    ########          ########    ########    ########    ##     ##    ########    ##    ##       ##    
-  */ 
+  /* inline-level content
+  ####    ##    ##    ##          ####    ##    ##    ########               ##          ########    ##     ##    ########    ##                 ######      #######     ##    ##    ########    ########    ##    ##    ######## 
+   ##     ###   ##    ##           ##     ###   ##    ##                     ##          ##          ##     ##    ##          ##                ##    ##    ##     ##    ###   ##       ##       ##          ###   ##       ##    
+   ##     ####  ##    ##           ##     ####  ##    ##                     ##          ##          ##     ##    ##          ##                ##          ##     ##    ####  ##       ##       ##          ####  ##       ##    
+   ##     ## ## ##    ##           ##     ## ## ##    ######      #######    ##          ######      ##     ##    ######      ##                ##          ##     ##    ## ## ##       ##       ######      ## ## ##       ##    
+   ##     ##  ####    ##           ##     ##  ####    ##                     ##          ##           ##   ##     ##          ##                ##          ##     ##    ##  ####       ##       ##          ##  ####       ##    
+   ##     ##   ###    ##           ##     ##   ###    ##                     ##          ##            ## ##      ##          ##                ##    ##    ##     ##    ##   ###       ##       ##          ##   ###       ##    
+  ####    ##    ##    ########    ####    ##    ##    ########               ########    ########       ###       ########    ########           ######      #######     ##    ##       ##       ########    ##    ##       ##    
+  */
   function markupInline(rly) {
     work = work.filter(rly => rly.length !== 0)
     let fKey = []
@@ -990,15 +1301,13 @@ return classify(work)
     let re_fKey = /(?<!\\(?:\\\\)*|!)(?<=\[\^).+?(?=\](?!:))/g
     for (let i in work) {
       work[i] = work[i]
-      .replace(/(?!\\(?:\\\\)*|_)_(?!_)(.+?)(?<!_|\\(?:\\\\)*)_(?!_)/g, `<em>$1</em>`)
-      .replace(/(?!\\(?:\\\\)*|_)__(?!_)(.+?)(?<!_|\\(?:\\\\)*)__(?!_)/g, `<strong>$1</strong>`)
-      .replace(/(?!\\(?:\\\\)*)___(.+?)(?<!\\(?:\\\\)*)___/g, `<strong><em>$1</em></strong>`)
-      .replace(/(?!\\(?:\\\\)*|\*)\*(?!\*)(.+?)(?<!\*|\\(?:\\\\)*)\*(?!\*)/g, `<em>$1</em>`)
-      .replace(/(?!\\(?:\\\\)*|\*)\*\*(?!\*)(.+?)(?<!\*|\\(?:\\\\)*)\*\*(?!\*)/g, `<strong>$1</strong>`)
-      .replace(/(?!\\(?:\\\\)*)\*\*\*(.+?)(?<!\\(?:\\\\)*)\*\*\*/g, `<strong><em>$1</em></strong>`)
-      .replace(/(?!\\(?:\\\\)*|~)~~(?!~)(.+?)(?<!\\(?:\\\\)*)~~(?!~)/g, `<del>$1</del>`)
-      .replace(/(?!\\(?:\\\\)*|!)\[(.+?)(?<!\\(?:\\\\)*)\]\((.+?)\)/g, `<a href="$2">$1</a>`)
-      .replace(/(?!\\(?:\\\\)*)!\[(.+?)(?<!\\(?:\\\\)*)\]\((.+?)\)/g, `<img src="$2" alt="$1">`)
+      .replace(/(\\*)__(.+?)(?<!\\(?:\\\\)*)__/g, (match, grp1, grp2) => (!grp1 || grp1.length % 2 === 0) ? `<strong>${grp2}</strong>` : match)
+      .replace(/(\\*)_(.+?)(?<!\\(?:\\\\)*)_/g, (match, grp1, grp2) => (!grp1 || grp1.length % 2 === 0) ? `<em>${grp2}</em>` : match)
+      .replace(/(\\*)\*\*(.+?)(?<!\\(?:\\\\)*)\*\*/g, (match, grp1, grp2) => (!grp1 || grp1.length % 2 === 0) ? `<strong>${grp2}</strong>` : match)
+      .replace(/(\\*)\*(.+?)(?<!\\(?:\\\\)*)\*/g, (match, grp1, grp2) => (!grp1 || grp1.length % 2 === 0) ? `<em>${grp2}</em>` : match)
+      .replace(/(\\*)~~(.+?)(?<!\\(?:\\\\)*)~~/g, (match, grp1, grp2) => (!grp1 || grp1.length % 2 === 0) ? `<del>${grp2}</del>` : match)
+      .replace(/(\\*)!\[(.+?)(?<!\\(?:\\\\)*)\]\((.+?)\)/g, (match, grp1, grp2, grp3) => (!grp1 || grp1.length % 2 === 0) ? `<img src="${grp3}" alt="${grp2}">` : match)
+      .replace(/(\\*)(?<!!)\[(.+?)(?<!\\(?:\\\\)*)\]\((.+?)\)/g, (match, grp1, grp2, grp3) => (!grp1 || grp1.length % 2 === 0) ? `<a href="${grp3}">${grp2}</a>` : match)
       if (re_fKey.test(work[i])) {
         let workL = work[i].match(re_fKey)
         for (let j in workL) {
@@ -1036,7 +1345,7 @@ return classify(work)
     let fKeyDsp = rly[2]
     let fContentKey = rly[3]
     let fContentWord = rly[4]
-    let fContent = `\n<sectioin>\n<ul>`
+    let fContent = `<sectioin><ul>`
     let fContentKeyRest = fContentKey.slice()
     let fContentKeySort = []
     let fContentWordRest = fContentWord.slice()
@@ -1058,358 +1367,14 @@ return classify(work)
           for (let k in fRtn[fKey[j]]) {
             rtn += `<a href="#user-content-return-${fRtn[fKey[j]][k]}">${arrowIcon}</a> `
           }
-          fContent += `\n<li><a name="user-content-${fKey[j]}">${fKeyDsp[fKey[j]]}</a>. ${fContentWordSort[i]} ${rtn}</li>`
+          fContent += `<li><a name="user-content-${fKey[j]}">${fKeyDsp[fKey[j]]}</a>. ${fContentWordSort[i]} ${rtn}</li>`
         }
       }
     }
     for (let i in fContentKeyRest) {
-      fContent += `\n<li>${fContentWordRest[i]}</li>`
+      fContent += `<li>${fContentWordRest[i]}</li>`
     }
-    fContent += `\n<ul>\n</section>`
-    return work.join(`\n`) + fContent
-  }
-  /* other function
-   #######     ########    ##     ##    ########    ########           ########    ##     ##    ##    ##     ######     ########    ####     #######     ##    ## 
-  ##     ##       ##       ##     ##    ##          ##     ##          ##          ##     ##    ###   ##    ##    ##       ##        ##     ##     ##    ###   ## 
-  ##     ##       ##       ##     ##    ##          ##     ##          ##          ##     ##    ####  ##    ##             ##        ##     ##     ##    ####  ## 
-  ##     ##       ##       #########    ######      ########           ######      ##     ##    ## ## ##    ##             ##        ##     ##     ##    ## ## ## 
-  ##     ##       ##       ##     ##    ##          ##   ##            ##          ##     ##    ##  ####    ##             ##        ##     ##     ##    ##  #### 
-  ##     ##       ##       ##     ##    ##          ##    ##           ##          ##     ##    ##   ###    ##    ##       ##        ##     ##     ##    ##   ### 
-   #######        ##       ##     ##    ########    ##     ##          ##           #######     ##    ##     ######        ##       ####     #######     ##    ## 
-  */
-  /* h
-  ##   ## 
-  ##   ## 
-  ####### 
-  ##   ## 
-  ##   ## 
-  */
-  function h(work, i) {
-    let num = work[i].match(/^#+/)[0].match(/#/g).length
-    return `<h${num}>${work[i].replace(/^#+ /, ``)}</h${num}>`
-  }
-  /* pconcat
-  ######      ######     ######     ###    ##     ######     #####     ######## 
-  ##   ##    ##         ##    ##    ####   ##    ##         ##   ##       ##    
-  ######     ##         ##    ##    ## ##  ##    ##         #######       ##    
-  ##         ##         ##    ##    ##  ## ##    ##         ##   ##       ##    
-  ##          ######     ######     ##   ####     ######    ##   ##       ##    
-  */
-  function pConcat(src) {
-    if (/<br>$/.test(src) === false) {
-      return ` `
-    }
-    else {
-      return ``
-    }
-  }
-  /* li
-  ##         ## 
-  ##         ## 
-  ##         ## 
-  ##         ## 
-  #######    ## 
-  */
-  function li(prop, i) {
-    //
-    // now not 1st & last line
-    //
-    if (i > 0 && i < iLast) {
-      // li continues
-      if (
-        (
-          prop[i].parent === prop[i - 1].parent
-          ||
-          prop[i].indentNum < prop[i - 1].indentNum
-        )
-        &&
-        prop[i].indentNum <= prop[i - 1].indentNum
-        &&
-        (
-          prop[i].parent === prop[i + 1].parent
-          ||
-          prop[i].indentNum < prop[i + 1].indentNum
-        )
-        &&
-        prop[i].indentNum <= prop[i + 1].indentNum
-      ) {
-        return `${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>`
-      }
-      // li begin
-      if (
-        (
-          (
-            prop[i].parent !== prop[i - 1].parent
-            &&
-            prop[i].indentNum === prop[i - 1].indentNum
-          )
-          ||
-          prop[i].indentNum > prop[i - 1].indentNum
-        )
-        &&
-        (
-          prop[i].parent === prop[i + 1].parent
-          ||
-          prop[i].indentNum < prop[i + 1].indentNum
-        )
-        &&
-        prop[i].indentNum <= prop[i + 1].indentNum
-      ) {
-        liAccum = liAccum.concat([prop[i].parent])
-        return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>`
-      }
-      // li end
-      if (
-        (
-          prop[i].parent === prop[i - 1].parent
-          ||
-          prop[i].indentNum < prop[i - 1].indentNum
-        )
-        &&
-        prop[i].indentNum <= prop[i - 1].indentNum
-        &&
-        (
-          (
-            prop[i].parent !== prop[i + 1].parent
-            &&
-            prop[i].indentNum === prop[i + 1].indentNum
-          )
-          ||
-          prop[i].indentNum > prop[i + 1].indentNum
-        )
-      ) {
-        return `${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>${liEnd(prop, i)}`
-      }
-      // li begin & end
-      if (
-        (
-          (
-            prop[i].parent !== prop[i - 1].parent
-            &&
-            prop[i].indentNum === prop[i - 1].indentNum
-          )
-          ||
-          prop[i].indentNum > prop[i - 1].indentNum
-        )
-        &&
-        (
-          (
-            prop[i].parent !== prop[i + 1].parent
-            &&
-            prop[i].indentNum === prop[i + 1].indentNum
-          )
-          ||
-          prop[i].indentNum > prop[i + 1].indentNum
-        )
-      ) {
-        liAccum = liAccum.concat([prop[i].parent])
-        return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>${liEnd(prop, i)}`
-      }
-    }
-    //
-    // now 1st line
-    //
-    if (i === 0 && i < iLast) {
-      // li begin
-      if (
-        prop[i].parent === prop[i + 1].parent
-        &&
-        prop[i].indentNum <= prop[i + 1].indentNum
-      ) {
-        liAccum = liAccum.concat([prop[i].parent])
-        return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>`
-      }
-      // li begin & end
-      if (
-        prop[i].parent !== prop[i + 1].parent
-        ||
-        prop[i].indentNum > prop[i + 1].indentNum
-      ) {
-        liAccum = liAccum.concat([prop[i].parent])
-        return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>${liEnd(prop, i)}`
-      }
-    }
-    //
-    // now last line
-    //
-    if (i > 0 && i === iLast) {
-      // li end
-      if (
-        prop[i].parent === prop[i - 1].parent
-        &&
-        prop[i].indentNum <= prop[i - 1].indentNum
-      ) {
-        return `${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>${liEnd(prop, i)}`
-      }
-      // li begin & end
-      if (
-        prop[i].parent !== prop[i - 1].parent
-        ||
-        prop[i].indentNum > prop[i - 1].indentNum
-      ) {
-        liAccum = liAccum.concat([prop[i].parent])
-        return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>${liEnd(prop, i)}`
-      }
-    }
-    //
-    // only one line exists
-    //
-    if (iLast === 0) {
-      // li begin & end
-      liAccum = liAccum.concat([prop[i].parent])
-      return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>${liEnd(prop, i)}`
-    }
-    //
-    //
-    // liEnd
-    //
-    //
-    function liEnd(prop, i) {
-      let underground = 0
-      if (
-        i < iLast
-      ) {
-        if ( // all end
-          prop[i + 1].class !== `li`
-          ||
-          (
-            prop[i].parent !== prop[i + 1].parent
-            &&
-            prop[i].indentNum === 0
-            &&
-            prop[i + 1].indentNum === 0
-          )
-        ) {
-          underground = 1
-        }
-        let diff = prop[i].indentNum - prop[i + 1].indentNum + underground
-        let liTerminator = liAccum.slice(-diff)
-        liAccum.splice(-1, diff)
-        if (liTerminator instanceof Array || typeof liTerminator === `array`) {
-          liTerminator = liTerminator.reverse().join(`></`)
-        }
-        return `</${liTerminator}>`
-      }
-      else {
-        underground = 1
-        let liTerminator = liAccum.pop(prop[i].indentNum +/*prop[i+1].indentNum*/+ underground)
-        if (liTerminator instanceof Array || typeof liTerminator === `array`) {
-          liTerminator = liTerminator.reverse().join(`></`)
-        }
-        return `</${liTerminator}>`
-      }
-    }
-    //
-    //
-    // liFront
-    //
-    //
-    function liFront(prop, i) {
-      let re_liTlStill = new RegExp(`^[ \\t]*[*+\\-] \\[ ?\\]`)
-      let re_liTlAlready = new RegExp(`^[ \\t]*[*+\\-] \\[[xX]\\]`)
-      if (!prop[i].task) {
-        return `<li>`
-      }
-      if (re_liTlStill.test(work[i])) {
-        return `<li><input type="checkbox">`
-      }
-      if (re_liTlAlready.test(work[i])) {
-        return `<li><input type="checkbox" checked>`
-      }
-    }
-  }
-  /* bq
-  ######      ######  
-  ##   ##    ##    ## 
-  ######     ##    ## 
-  ##   ##    ## ## ## 
-  ######      ######  
-                  ##   
-  */
-  function bq(prop, i) {
-    /*
-      table of if
-      blockquote...
-      1. continues
-      2. begin, not end
-      3. end, not begin
-      4. begin and end
-    */
-    // blockquote continues
-    if (
-      prop[i].stack <= prop[i - 1].stack
-      &&
-      prop[i].stack <= prop[i + 1].stack
-    ) {
-      return work[i].replace(/^>+ ?/, ``)
-    }
-    // blockquote begin, not end
-    else if (
-      (
-        prop[i - 1].class !== `bq`
-        ||
-        prop[i].stack > prop[i - 1].stack
-      )
-      &&
-      prop[i + 1].class === `bq`
-    ) {
-      let bqBegin = ``
-      if (prop[i - 1].class !== `bq`) {
-        bqBegin = `${`<blockquote>`.repeat(prop[i].stack)}<p>`
-      }
-      else {
-        bqBegin = `${`<blockquote>`.repeat(prop[i].stack - prop[i - 1].stack)}<p>`
-      }
-      return `${bqBegin}${work[i].replace(/^>+ ?/, ``)}`
-    }
-    // blockquote end, not begin
-    else if (
-      (
-        prop[i + 1].class !== `bq`
-        ||
-        prop[i].stack > prop[i + 1].stack
-      )
-      &&
-      prop[i - 1].class === `bq`
-    ) {
-      let bqEnd = ``
-      if (prop[i + 1].class !== `bq`) {
-        bqEnd = `${`</blockquote>`.repeat(prop[i].stack)}</p>`
-      }
-      else {
-        bqEnd = `${`</blockquote>`.repeat(prop[i].stack - prop[i + 1].stack)}</p>`
-      }
-      return `${work[i].replace(/^>+ ?/, ``)}${bqEnd}`
-    }
-    // blockquote begin and end
-    else if (
-      (
-        prop[i - 1].class !== `bq`
-        ||
-        prop[i].stack > prop[i - 1].stack
-      )
-      &&
-      (
-        prop[i + 1].class !== `bq`
-        ||
-        prop[i].stack > prop[i + 1].stack
-      )
-    ) {
-      let bqBegin = ``
-      let bqEnd = ``
-      if (prop[i - 1].class !== `bq`) {
-        bqBegin = `${`<blockquote>`.repeat(prop[i].stack)}<p>`
-      }
-      else {
-        bqBegin = `${`<blockquote>`.repeat(prop[i].stack - prop[i - 1].stack)}<p>`
-      }
-      if (prop[i + 1].class !== `bq`) {
-        bqEnd = `${`</blockquote>`.repeat(prop[i].stack)}</p>`
-      }
-      else {
-        bqEnd = `${`</blockquote>`.repeat(prop[i].stack - prop[i + 1].stack)}</p>`
-      }
-      return `${bqBegin}${work[i].replace(/^>+ ?/, ``)}${bqEnd}`
-    }
+    fContent += `<ul></section>`
+    return work.join(`\n`).replace(/\\+/g, match => `\\`.repeat(Math.floor(match.length / 2))) + fContent
   }
 }
