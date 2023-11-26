@@ -1,59 +1,14 @@
 # サンプル Markdown 文書 Sample Markdown document
 ## ブロックレベルコンテンツ Block-level content
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 改行（末尾にスペース x 2 ） newline ( trailing space x 2 )  
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 改行（末尾にスペース x 2 ） newline ( trailing space x 2 )  
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-
+### 見出し Heading
 # 見出し 1 Headings 1
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 改行（末尾にスペース x 2 ） newline ( trailing space x 2 )  
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 改行（末尾にスペース x 2 ） newline ( trailing space x 2 )  
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-
 ## 見出し 2 Headings 2
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 改行（末尾にスペース x 2 ） newline ( trailing space x 2 )  
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 改行（末尾にスペース x 2 ） newline ( trailing space x 2 )  
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-
 ### 見出し 3 Headings 3
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 改行（末尾にスペース x 2 ） newline ( trailing space x 2 )  
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 改行（末尾にスペース x 2 ） newline ( trailing space x 2 )  
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-
 #### 見出し 4 Headings 4
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 改行（末尾にスペース x 2 ） newline ( trailing space x 2 )  
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 改行（末尾にスペース x 2 ） newline ( trailing space x 2 )  
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-
 ##### 見出し 5 Headings 5
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 改行（末尾にスペース x 2 ） newline ( trailing space x 2 )  
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 改行（末尾にスペース x 2 ） newline ( trailing space x 2 )  
-段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
-
 ###### 見出し 6 Headings 6
+
+### 段落 Paragraph
 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 改行（末尾にスペース x 2 ） newline ( trailing space x 2 )  
 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
@@ -62,6 +17,7 @@
 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 改行（末尾にスペース x 2 ） newline ( trailing space x 2 )  
 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs 段落 Paragraphs
 
+### リスト List
 * 順序なしリスト Unordered lists (*)
     * 順序なしリスト Unordered lists (*)
         * 順序なしリスト Unordered lists (*)
@@ -111,6 +67,7 @@
         * 順序なしリスト Unordered lists
 
 
+### コードブロック Code block
 ```
 個別ブロックでの引用コード（バッククォート） 1  Quoting code into distinct block (back quote) 1 
 個別ブロックでの引用コード（バッククォート） 1  Quoting code into distinct block (back quote) 1 
@@ -141,7 +98,7 @@
 ↓ 個別ブロックでの引用コード（インデント） 8  （コード部なし） Quoting code into distinct block (indentation) 8  (No code part)
     
 
-
+### 表 Table
 | Content11 | Content12 | Content13 |
 | Content14 | Content15 | Content16 |
 | Content17 | Content18 | Content19 |
@@ -179,6 +136,7 @@
 | --------- | --------- | --------- | 
 
 
+### 引用ブロック Blockquote
 > 引用文 Quoting text  
 > 引用文 Quoting text  
 > 引用文 Quoting text
@@ -192,6 +150,7 @@
 > 引用文 Quoting text
 
 
+### 脚注 Footnote
 脚注キー footnote key 1 [^footnote-1]
 
 脚注キー footnote key 3 [^footnote-3]
@@ -207,6 +166,7 @@
 [^footnote-3]: 脚注コンテンツ footnote content 3
 
 
+### 横罫線 Horizontal ruler
 ***
 ↑ アスタリスクによる横罫線 horizontal rule with asterisks
 ---
@@ -228,6 +188,7 @@ _	_	_
 
 
 ## インラインレベルコンテンツ Inline-level content
+### 強調 Emphasis
 *アスタリスクによるイタリック Italic with asterisks*
 
 _アンダーバーによるイタリック Italic with underbar_
@@ -294,6 +255,7 @@ bold and italic with underbar___
 ![画像 Images](sample.jpg)
 
 
+↓ HTML \<!-- --> による非表示 Hiding content with comments
 <!--非表示 Hiding content with comments-->
 
 
@@ -327,6 +289,7 @@ Markdown の無視（ Markdown 記号がエスケープされている場合） 
 Markdown の無視（ Markdown 記号がエスケープされている場合） Ignoring Markdown formatting (Markdown sign is escaped) => ![画像 \] Images](sample.jpg) 
 
 
+### 破綻の処理 Bankruptcy handling
 \```
 個別ブロックでの引用コードが破綻している Quoting code into distinct block is broken
 ```

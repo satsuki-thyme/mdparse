@@ -1,4 +1,4 @@
-function mdparse(src, parseType) {
+function mdparse(src, switchObject) {
   let work = src
   .replace(/\\/g, `\\\\`)
   .replace(/  \r?\n>+ |  (\r?\n|$)/g, `<br>`)
@@ -8,15 +8,15 @@ function mdparse(src, parseType) {
   let preEncContinuation = false
   let re_indent = null
   let arrowIcon = // for footnote
-  `<svg class="user-cnt-arrow" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0, 0, 16, 21"><path d="M 0,0 V 2 h 8 c 3,0 6,3 6,6 0,3 -3,6 -6,6 H 7 v 2 h 1 c 4,0 8,-4 8,-8 0,-4 -4,-8 -8,-8 z"/><path d="M 6,21 7,19 3,15 7,11 6,9 0,15 Z"/></svg>`
+  `<svg class="user-content-return-arrow" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0, 0, 16, 21"><path d="M 0,0 V 2 h 8 c 3,0 6,3 6,6 0,3 -3,6 -6,6 H 7 v 2 h 1 c 4,0 8,-4 8,-8 0,-4 -4,-8 -8,-8 z"/><path d="M 6,21 7,19 3,15 7,11 6,9 0,15 Z"/></svg>`
   let re_blank = new RegExp(`^[ \\t]*$`)
-  let re_h = new RegExp(`^#{1,6} `)
-  let re_liBegin = new RegExp(`^([*+\\-] |\\d+\\. )(?!.*([*\\-_][ \\t]*){2,}).*$`)
-  let re_li = new RegExp(`^[ \\t]*([*+\\-] |\\d+\\. )(\\[[ xX]\\])?`)
-  let re_liUl = new RegExp(`^[ \\t]*[*+\\-] `)
-  let re_liTl = new RegExp(`^[ \\t]*[*+\\-] \\[[ xX]\\]`)
-  let re_liOl = new RegExp(`^[ \\t]*\\d+\\. `)
-  let re_bq = new RegExp(`^>+`)
+  let re_header = new RegExp(`^#{1,6} `)
+  let re_listBegin = new RegExp(`^([*+\\-] |\\d+\\. )(?!.*([*\\-_][ \\t]*){2,}).*$`)
+  let re_list = new RegExp(`^[ \\t]*([*+\\-] |\\d+\\. )(\\[[ xX]\\])?`)
+  let re_listUl = new RegExp(`^[ \\t]*[*+\\-] `)
+  let re_listTl = new RegExp(`^[ \\t]*[*+\\-] \\[[ xX]\\]`)
+  let re_listOl = new RegExp(`^[ \\t]*\\d+\\. `)
+  let re_blockquote = new RegExp(`^>+`)
   let re_preEnc = new RegExp(`^\`\`\`|^~~~`)
   let re_preInd = new RegExp(`^[ \\t]+`)
   let re_table = new RegExp(`^\\|.*\\|$`)
@@ -49,7 +49,6 @@ function mdparse(src, parseType) {
   */
   function classify() {
     let prop = []
-    let rowNumAttach = 0
     let i = 0
       return new Promise(resolve => {
       fn()
@@ -59,7 +58,7 @@ function mdparse(src, parseType) {
         /*
           table of if
           1. blank
-          2. h
+          2. header
           3. p
           4. li with ul as parent
           5. li with ol as parent
@@ -102,9 +101,10 @@ function mdparse(src, parseType) {
         if (
           !preEncContinuation
           &&
-          re_h.test(work[i])
+          re_header.test(work[i])
         ) {
-          prop[i].class = `h`
+          prop[i].class = `header`
+          prop[i].headerLv = work[i].match(/^#+/)[0].length
           if (i < iLast) {
             i++
             fn()
@@ -125,11 +125,11 @@ function mdparse(src, parseType) {
           &&
           !re_blank.test(work[i])
           &&
-          !re_h.test(work[i])
+          !re_header.test(work[i])
           &&
-          !re_li.test(work[i])
+          !re_list.test(work[i])
           &&
-          !re_bq.test(work[i])
+          !re_blockquote.test(work[i])
           &&
           !re_preEnc.test(work[i])
           &&
@@ -141,7 +141,7 @@ function mdparse(src, parseType) {
           &&
           !re_hr.test(work[i])
         ) {
-          prop[i].class = `p`
+          prop[i].class = `paragraph`
           if (i < iLast) {
             i++
             fn()
@@ -162,16 +162,16 @@ function mdparse(src, parseType) {
           &&
           !liContinuation
           &&
-          re_liBegin.test(work[i])
+          re_listBegin.test(work[i])
         ) {
-          prop[i].class = `li`
-          if (re_liUl.test(work[i])) {
+          prop[i].class = `list`
+          if (re_listUl.test(work[i])) {
             prop[i].parent = `ul`
           }
-          if (re_liOl.test(work[i])) {
+          if (re_listOl.test(work[i])) {
             prop[i].parent = `ol`
           }
-          if (re_liTl.test(work[i])) {
+          if (re_listTl.test(work[i])) {
             prop[i].task = true
           }
           liContinuation = true
@@ -195,14 +195,14 @@ function mdparse(src, parseType) {
           &&
           liContinuation
           &&
-          re_liUl.test(work[i])
+          re_listUl.test(work[i])
         ) {
-          prop[i].class = `li`
+          prop[i].class = `list`
           prop[i].parent = `ul`
-          if (!re_li.test(work[i + 1])) {
+          if (!re_list.test(work[i + 1])) {
             liContinuation = false
           }
-          if (re_liTl.test(work[i])) {
+          if (re_listTl.test(work[i])) {
             prop[i].task = true
           }
           if (i < iLast) {
@@ -225,11 +225,11 @@ function mdparse(src, parseType) {
           &&
           liContinuation
           &&
-          re_liOl.test(work[i])
+          re_listOl.test(work[i])
         ) {
-          prop[i].class = `li`
+          prop[i].class = `list`
           prop[i].parent = `ol`
-          if (!re_li.test(work[i + 1])) {
+          if (!re_list.test(work[i + 1])) {
             liContinuation = false
           }
           if (i < iLast) {
@@ -251,9 +251,9 @@ function mdparse(src, parseType) {
         if (
           !preEncContinuation
           &&
-          re_bq.test(work[i])
+          re_blockquote.test(work[i])
         ) {
-          prop[i].class = `bq`
+          prop[i].class = `blockquote`
           prop[i].bqStack = work[i].match(/^>+/)[0].length
           if (i < iLast) {
             i++
@@ -455,7 +455,7 @@ function mdparse(src, parseType) {
           &&
           re_hr.test(work[i])
         ) {
-          prop[i].class = `hr`
+          prop[i].class = `horizontalRuler`
           if (i < iLast) {
             i++
             fn()
@@ -539,6 +539,7 @@ function mdparse(src, parseType) {
   */
   function markupBlock(prop) {
     let i = 0
+    let ssAccum = []
     let liAccum = []
     let fContentKey = []
     let fContentWord = []
@@ -573,9 +574,25 @@ function mdparse(src, parseType) {
           ##   ##    ##         ##   ##    ##   ##    ##    ##  ## ##    ##    ## 
           ##   ##    #######    ##   ##    ######     ##    ##   ####     ######  
           */
-          case `h`:
-            let hNum = work[i].match(/^#+/)[0].length
-            work[i] = `<h${hNum}>${work[i].replace(/^#+/, ``)}</h${hNum}>`
+          case `header`:
+            let section = ``
+            if (switchObject.section) {
+              if (prop[i].headerLv < ssAccum[ssAccum.length - 1]) {
+                while (prop[i].headerLv <= ssAccum[ssAccum.length - 1]) {
+                  section += `</section>`
+                  ssAccum.splice(-1, 1)
+                }
+                section += ssAccum.length === 0 ? `` : `<section>`
+              }
+              else if (prop[i].headerLv > (ssAccum[ssAccum.length - 1] || 0)) {
+                section = `<section>`
+                ssAccum = ssAccum.concat(prop[i].headerLv)
+              }
+              else if (prop[i].headerLv === ssAccum[ssAccum.length - 1]) {
+                section = `</section><section>`
+              }
+            }
+            work[i] = `${section}<h${prop[i].headerLv}>${work[i].replace(/^#+/, ``)}</h${prop[i].headerLv}>`
             if (i < iLast) {
               i++
               fn()
@@ -591,13 +608,13 @@ function mdparse(src, parseType) {
           ##         ##   ##    ##   ##    ##   ##    ##    ##    ##   ##    ##   ##    ##         ##   ## 
           ##         ##   ##    ##   ##    ##   ##     ######     ##   ##    ##   ##    ##         ##   ## 
           */
-          case `p`:
+          case `paragraph`:
             if (
               i === iLast
               ||
-              prop[i + 1].class !== `p`
+              prop[i + 1].class !== `paragraph`
               ||
-              parseType === `permissive`
+              switchObject.permissive
             ) {
               work[i] = `<p>${work[i]}</p>`
               if (i < iLast) {
@@ -628,7 +645,7 @@ function mdparse(src, parseType) {
           ##         ##         ##       ##    
           #######    ##    #######       ##    
           */
-          case `li`:
+          case `list`:
             work[i] = list(prop, i)
             if (i < iLast) {
               i++
@@ -646,7 +663,7 @@ function mdparse(src, parseType) {
           ######     #######     ######      ######    ##   ##     ######      ######      ######        ##       ####### 
                                                                       ##                                                  
           */
-          case `bq`:
+          case `blockquote`:
             work[i] = blockquote(prop, i)
             if (i < iLast) {
               i++
@@ -925,7 +942,7 @@ function mdparse(src, parseType) {
           ##   ##    ##    ##    ##   ##    ##     ###       ##    ##    ##  ## ##       ##       ##   ##    ##                 ##   ##    ##    ##    ##         ##         ##   ## 
           ##   ##     ######     ##   ##    ##    #######     ######     ##   ####       ##       ##   ##    #######            ##   ##     ######     #######    #######    ##   ## 
           */
-          case `hr`:
+          case `horizontalRuler`:
             work[i] = `<hr>`
             if (i < iLast) {
               i++
@@ -1001,7 +1018,7 @@ function mdparse(src, parseType) {
           &&
           prop[i].indentNum <= prop[i + 1].indentNum
         ) {
-          return `${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>`
+          return `${liFront(prop, i)}${work[i].replace(re_list, ``)}</li>`
         }
         // li begin
         if (
@@ -1024,7 +1041,7 @@ function mdparse(src, parseType) {
           prop[i].indentNum <= prop[i + 1].indentNum
         ) {
           liAccum = liAccum.concat([prop[i].parent])
-          return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>`
+          return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_list, ``)}</li>`
         }
         // li end
         if (
@@ -1046,7 +1063,7 @@ function mdparse(src, parseType) {
             prop[i].indentNum > prop[i + 1].indentNum
           )
         ) {
-          return `${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>${liEnd(prop, i)}`
+          return `${liFront(prop, i)}${work[i].replace(re_list, ``)}</li>${liEnd(prop, i)}`
         }
         // li begin & end
         if (
@@ -1071,7 +1088,7 @@ function mdparse(src, parseType) {
           )
         ) {
           liAccum = liAccum.concat([prop[i].parent])
-          return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>${liEnd(prop, i)}`
+          return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_list, ``)}</li>${liEnd(prop, i)}`
         }
       }
       //
@@ -1085,7 +1102,7 @@ function mdparse(src, parseType) {
           prop[i].indentNum <= prop[i + 1].indentNum
         ) {
           liAccum = liAccum.concat([prop[i].parent])
-          return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>`
+          return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_list, ``)}</li>`
         }
         // li begin & end
         if (
@@ -1094,7 +1111,7 @@ function mdparse(src, parseType) {
           prop[i].indentNum > prop[i + 1].indentNum
         ) {
           liAccum = liAccum.concat([prop[i].parent])
-          return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>${liEnd(prop, i)}`
+          return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_list, ``)}</li>${liEnd(prop, i)}`
         }
       }
       //
@@ -1107,7 +1124,7 @@ function mdparse(src, parseType) {
           &&
           prop[i].indentNum <= prop[i - 1].indentNum
         ) {
-          return `${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>${liEnd(prop, i)}`
+          return `${liFront(prop, i)}${work[i].replace(re_list, ``)}</li>${liEnd(prop, i)}`
         }
         // li begin & end
         if (
@@ -1116,7 +1133,7 @@ function mdparse(src, parseType) {
           prop[i].indentNum > prop[i - 1].indentNum
         ) {
           liAccum = liAccum.concat([prop[i].parent])
-          return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>${liEnd(prop, i)}`
+          return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_list, ``)}</li>${liEnd(prop, i)}`
         }
       }
       //
@@ -1125,7 +1142,7 @@ function mdparse(src, parseType) {
       if (iLast === 0) {
         // li begin & end
         liAccum = liAccum.concat([prop[i].parent])
-        return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_li, ``)}</li>${liEnd(prop, i)}`
+        return `<${prop[i].parent}>${liFront(prop, i)}${work[i].replace(re_list, ``)}</li>${liEnd(prop, i)}`
       }
       //
       //
@@ -1138,7 +1155,7 @@ function mdparse(src, parseType) {
           i < iLast
         ) {
           if ( // all end
-            prop[i + 1].class !== `li`
+            prop[i + 1].class !== `list`
             ||
             (
               prop[i].parent !== prop[i + 1].parent
@@ -1173,15 +1190,15 @@ function mdparse(src, parseType) {
       //
       //
       function liFront(prop, i) {
-        let re_liTlStill = new RegExp(`^[ \\t]*[*+\\-] \\[ ?\\]`)
-        let re_liTlAlready = new RegExp(`^[ \\t]*[*+\\-] \\[[xX]\\]`)
+        let re_listTlStill = new RegExp(`^[ \\t]*[*+\\-] \\[ ?\\]`)
+        let re_listTlAlready = new RegExp(`^[ \\t]*[*+\\-] \\[[xX]\\]`)
         if (!prop[i].task) {
           return `<li>`
         }
-        if (re_liTlStill.test(work[i])) {
+        if (re_listTlStill.test(work[i])) {
           return `<li><input type="checkbox">`
         }
-        if (re_liTlAlready.test(work[i])) {
+        if (re_listTlAlready.test(work[i])) {
           return `<li><input type="checkbox" checked>`
         }
       }
@@ -1345,7 +1362,7 @@ function mdparse(src, parseType) {
     let fKeyDsp = rly[2]
     let fContentKey = rly[3]
     let fContentWord = rly[4]
-    let fContent = `<sectioin><ul>`
+    let fContent = `<section><ul>`
     let fContentKeyRest = fContentKey.slice()
     let fContentKeySort = []
     let fContentWordRest = fContentWord.slice()

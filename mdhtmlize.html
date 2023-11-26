@@ -55,7 +55,7 @@
         elm_container.style.inset = 0
         elm_textarea.focus()
         elm_textarea.oninput = () => {
-          mdparse(elm_textarea.value, "permissive")
+          mdparse(elm_textarea.value, {"permissive": true})
           .then(async rly => {
             elm_textarea.value = await htmlshape(rly)
             elm_textarea.select()

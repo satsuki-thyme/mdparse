@@ -12,7 +12,10 @@ Markdown を HTML に変換する JavaScript のライブラリです。
 ## 説明
 - Markdown をパースして HTML を出力します
 - GitHab の Markdown パーサを意識しました
-- 改行の扱いについて、標準では厳密に規定に従いますが、第 2 引数に "parmissive" を与えることで 1 個の改行を段落と見なします
+- 第 2 引数に連想配列でオプションを指定することができます
+  - {"permissive": true} とすることで 1 個の改行を段落と見なします。省略することが可能です
+  - {"section": true} とすることで h1 ~ 6 ごとに <section> で囲います。省略することが可能です
+  - 二つのオプションを設定する際には {"permissive": true, "section": true} とします
 - 出力される HTML は 1 行です（コードブロックを除く）。整形されたものが必要な場合は別途 [htmlshape.js](https://github.com/satsuki-thyme/htmlshape.js) をご利用ください
 
 ## CDN
