@@ -577,7 +577,7 @@ function mdparse(src, switchObject) {
           case `header`:
             let section = ``
             if (switchObject.section) {
-              if (prop[i].headerLv < ssAccum[ssAccum.length - 1]) {
+              if (prop[i].headerLv < ssAccum[ssAccum.length - 1] || i === iLast) {
                 while (prop[i].headerLv <= ssAccum[ssAccum.length - 1]) {
                   section += `</section>`
                   ssAccum.splice(-1, 1)
