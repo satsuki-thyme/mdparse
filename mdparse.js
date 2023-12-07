@@ -485,16 +485,16 @@ function mdparse(src, switchObject) {
         itArray.push((work[i].match(/^\t+/) || [``])[0].length)
       }
     }
-    isArray = Array.from(new Set(isArray)).sort((a, b) => {return a - b})
-    itArray = Array.from(new Set(itArray)).sort((a, b) => {return a - b})
+    isArray = [... new Set(isArray)].sort((a, b) => a - b)
+    itArray = [... new Set(itArray)].sort((a, b) => a - b)
     let isDiff = isArray.reduce((a, b) => {return (a[0].push(b - a[1]), a[1] = b, a)}, [[], 0]).shift()
     let itDiff = itArray.reduce((a, b) => {return (a[0].push(b - a[1]), a[1] = b, a)}, [[], 0]).shift()
     let c = (a, i, b) => (a[i] ? a[i].add(b) : a[i] = new Set(b), i)
-    let isNum = Math.min([...isDiff.reduce(function(a, b) {return (b = String(b), this.set(b, c(a, (this.get(b) + 1 || 1), b)), a)}.bind(new Map), []).pop()].map(rly => Number(rly)))
-    let itNum = Math.min([...itDiff.reduce(function(a, b) {return (b = String(b), this.set(b, c(a, (this.get(b) + 1 || 1), b)), a)}.bind(new Map), []).pop()].map(rly => Number(rly)))
+    let isNum = [...isDiff.reduce(function(a, b) {return (b = String(b), this.set(b, c(a, (this.get(b) + 1 || 1), b)), a)}.bind(new Map), []).pop()].map(rly => Number(rly)).reduce((a, b) => b !== 0 ? (b < a ? b : a) : a, Infinity)
+    let itNum = [...itDiff.reduce(function(a, b) {return (b = String(b), this.set(b, c(a, (this.get(b) + 1 || 1), b)), a)}.bind(new Map), []).pop()].map(rly => Number(rly)).reduce((a, b) => b !== 0 ? (a < b ? a : b) : a, Infinity)
     for (let i in prop) {
       let indentBlob = (work[i].match(/^[ \t]*/) || [``])[0]
-      prop[i].indentNum = Math.floor(isNum !==0 ? (indentBlob.match(/ /g) || []).length / isNum : 0) + Math.floor(itNum !== 0 ? (indentBlob.match(/\t/g) || []).length / itNum : 0)
+      prop[i].indentNum = Math.floor(isNum !== 0 ? (indentBlob.match(/ /g) || []).length / isNum : 0) + Math.floor(itNum !== 0 ? (indentBlob.match(/\t/g) || []).length / itNum : 0)
     }
     return prop
   }
@@ -1309,7 +1309,7 @@ function mdparse(src, switchObject) {
   ####    ##    ##    ########    ####    ##    ##    ########               ########    ########       ###       ########    ########           ######      #######     ##    ##       ##       ########    ##    ##       ##    
   */
   function markupInline(rly) {
-    work = work.filter(rly => (rly || 0).length !== 0)
+    work = work.filter(rly => rly.length !== 0)
     let fKey = []
     let fKeyNum = 0
     let fKeyDsp = {}
