@@ -1309,7 +1309,7 @@ function mdparse(src, switchObject) {
   ####    ##    ##    ########    ####    ##    ##    ########               ########    ########       ###       ########    ########           ######      #######     ##    ##       ##       ########    ##    ##       ##    
   */
   function markupInline(rly) {
-    work = work.filter(rly => rly.length !== 0)
+    work = work.filter(rly => (rly.length || 0) !== 0)
     let fKey = []
     let fKeyNum = 0
     let fKeyDsp = {}
