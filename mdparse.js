@@ -329,6 +329,16 @@ function mdparse(src, switchObject) {
           !liContinuation
           &&
           re_preInd.test(work[i])
+          &&
+          (
+            i === 0
+            ||
+            (
+              i !== 0
+              &&
+              prop[i - 1].class !== `list`
+            )
+          )
         ) {
           prop[i].class = `preInd`
           if (prop[i - 1].class === `preInd` && re_preInd.test(work[i + 1])) {
