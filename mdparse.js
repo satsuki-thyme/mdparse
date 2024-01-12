@@ -1,8 +1,17 @@
 function mdparse(src, switchObject) {
+  // decide the value what is end of line
+  let eols = {
+    "n": (src.match(/(?<!\r)\n/g) || []).length,
+    "r": (src.match(/\r(?!\n)/g) || []).length,
+    "rn": (src.match(/\r\n/g) || []).length
+  }
+  let eol = eols.n >= eols.r ? eols.n >= eols.rn ? `\n` : `\r\n` : eols.r <= eols.rn ? `\r\n` : `\r`
+  let re_br = new RegExp(`  ${eol}>+ |  (${eol}|$)`, `g`)
   let work = src
+  .replace(/\r?\n|\r(?!\n)/g, eol)
   .replace(/\\/g, `\\\\`)
-  .replace(/  \r?\n>+ |  (\r?\n|$)/g, `<br>`)
-  .split(/\r?\n/)
+  .replace(re_br, `<br>`)
+  .split(eol)
   let iLast = work.length - 1
   let liContinuation = false
   let preEncContinuation = false
