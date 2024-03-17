@@ -1336,14 +1336,15 @@ function mdparse(src, switchObject) {
     let fRtn = {}
     let re_fKey = /(?<!\\(?:\\\\)*|!)(?<=\[\^).+?(?=\](?!:))/g
     for (let i in work) {
+      console.log(work[i])
       work[i] = work[i]
-      .replace(/(\\*)__(.+?)(?<!\\(?:\\\\)*)__/g, (match, grp1, grp2) => (!grp1 || grp1.length % 2 === 0) ? `<strong>${grp2}</strong>` : match)
-      .replace(/(\\*)_(.+?)(?<!\\(?:\\\\)*)_/g, (match, grp1, grp2) => (!grp1 || grp1.length % 2 === 0) ? `<em>${grp2}</em>` : match)
-      .replace(/(\\*)\*\*(.+?)(?<!\\(?:\\\\)*)\*\*/g, (match, grp1, grp2) => (!grp1 || grp1.length % 2 === 0) ? `<strong>${grp2}</strong>` : match)
-      .replace(/(\\*)\*(.+?)(?<!\\(?:\\\\)*)\*/g, (match, grp1, grp2) => (!grp1 || grp1.length % 2 === 0) ? `<em>${grp2}</em>` : match)
-      .replace(/(\\*)~~(.+?)(?<!\\(?:\\\\)*)~~/g, (match, grp1, grp2) => (!grp1 || grp1.length % 2 === 0) ? `<del>${grp2}</del>` : match)
-      .replace(/(\\*)!\[(.+?)(?<!\\(?:\\\\)*)\]\((.+?)\)/g, (match, grp1, grp2, grp3) => (!grp1 || grp1.length % 2 === 0) ? `<img src="${grp3}" alt="${grp2}">` : match)
-      .replace(/(\\*)(?<!!)\[(.+?)(?<!\\(?:\\\\)*)\]\((.+?)\)/g, (match, grp1, grp2, grp3) => (!grp1 || grp1.length % 2 === 0) ? `<a href="${grp3}">${grp2}</a>` : match)
+      .replace(/(?<= |^|>|_|\*|~)(?:\\\\)*__(.+?)(?<!\\(?:\\\\)*)__(?= |$|<|_|\*|~)/g, `<strong>$1</strong>`)
+      .replace(/(?<= |^|>|_|\*|~)(?:\\\\)*_(.+?)(?<!\\(?:\\\\)*)_(?= |$|<|_|\*|~)/g, `<em>$1</em>`)
+      .replace(/(?<= |^|>|_|\*|~)(?:\\\\)*\*\*(.+?)(?<!\\(?:\\\\)*)\*\*(?= |$|<|_|\*|~)/g, `<strong>$1</strong>`)
+      .replace(/(?<= |^|>|_|\*|~)(?:\\\\)*\*(.+?)(?<!\\(?:\\\\)*)\*(?= |$|<|_|\*|~)/g, `<em>$1</em>`)
+      .replace(/(?<= |^|>|_|\*|~)(?:\\\\)*~~(.+?)(?<!\\(?:\\\\)*)~~(?= |$|<|_|\*|~)/g, `<del>$1</del>`)
+      .replace(/(?<= |^|>|_|\*|~)(?:\\\\)*!\[(.+?)(?<!\\(?:\\\\)*)\]\((.+?)\)(?= |$|<|_|\*|~)/g, (match, grp1, grp2) => `<img src="${grp2}" alt="${grp1}">`)
+      .replace(/(?<= |^|>|_|\*|~)(?:\\\\)*(?<!!)\[(.+?)(?<!\\(?:\\\\)*)\]\((.+?)\)(?= |$|<|_|\*|~)/g, (match, grp1, grp2) => `<a href="${grp2}">${grp1}</a>`)
       if (re_fKey.test(work[i])) {
         let workL = work[i].match(re_fKey)
         for (let j in workL) {

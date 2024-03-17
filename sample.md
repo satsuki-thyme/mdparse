@@ -199,7 +199,7 @@ __アンダーバーによる太字 Bold with underbar__
 
 ~~取り消し Strikethrough~~
 
-**アスタリスクによる太字と_アンダーバーによるイタリック_の入れ子 Nesting bold with asterisks and _italics with underbars_**
+**アスタリスクによる太字と _アンダーバーによるイタリック_ の入れ子 Nesting bold with asterisks and _italics with underbars_**
 
 ***アスタリスクによる太字かつイタリック Bold and italic with asterisks***
 
@@ -231,7 +231,7 @@ Including line breaks
 strikethrough~~
 
 **改行を含む  
-アスタリスクによる太字と_アンダーバーによるイタリック_の入れ子  
+アスタリスクによる太字と _アンダーバーによるイタリック_ の入れ子  
 Including line breaks  
 nesting bold with asterisks and _italics with underbars_**
 
