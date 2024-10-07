@@ -383,63 +383,105 @@ function mdparse(src, switchObject) {
           re_table.test(work[i])
         ) {
           prop[i].class = `table`
-          // continue
-          if (prop[i - 1].class === `table` && re_table.test(work[i + 1])) {
-            prop[i].site = `middle`
-            prop[i].tGrp = prop[i - 1].tGrp
-            procHLine()
-          }
-          // begin
-          if (prop[i - 1].class !== `table` && re_table.test(work[i + 1])) {
-            prop[i].site = `begin`
-            prop[i].tGrp = i
-            procHLine()
-          }
-          // end
-          if (prop[i - 1].class === `table` && !re_table.test(work[i + 1])) {
-            prop[i].site = `end`
-            prop[i].tGrp = prop[i - 1].tGrp
-            procHLine()
-          }
-          // begin & end
-          if (prop[i - 1].class !== `table` && !re_table.test(work[i + 1])) {
-            prop[i].site = `az`
-            prop[i].tGrp = i
-            procHLine()
-          }
-          // inherit to begining with horizontal line
-          if (prop[i - 1].hLine === `current` && prop[i - 1].beginWithHLine) {
-            prop[i].beginWithHLine = true
-          }
-          function procHLine() {
-            if (prop[i - 1].hLine === `current` || prop[i - 1].hLine === `after`) {
-              prop[i].hLine = `after`
+          let promiseArray = []
+          Promise.all(promiseArray)
+          .then(() => {
+            if (i < iLast) {
+              i++
+              fn()
             }
             else {
-              prop[i].hLine = `unrelated`
+              resolve(prop)
             }
-          }
-          if (/^\|([ :]?-+[ :]?\|)+/.test(work[i])) {
-            prop[i].hLine = `current`
-            fn1(prop[i].tGrp, i)
-            function fn1(tGrp, iL) {
-              iL--
-              if (prop[iL].tGrp === tGrp) {
-                prop[iL].hLine = `before`
-                fn1(tGrp, iL)
+          })
+          promiseArray.push(
+            new Promise(resolve => {
+              // continue
+              if (prop[i - 1].class === `table` && re_table.test(work[i + 1])) {
+                prop[i].site = `middle`
+                prop[i].tGrp = prop[i - 1].tGrp
+                procHLine()
+                resolve()
               }
-              if (prop[iL].tGrp !== tGrp && iL === i - 1) {
+              // begin
+              if (prop[i - 1].class !== `table` && re_table.test(work[i + 1])) {
+                prop[i].site = `begin`
+                prop[i].tGrp = i
+                procHLine()
+                resolve()
+              }
+              // end
+              if (prop[i - 1].class === `table` && !re_table.test(work[i + 1])) {
+                prop[i].site = `end`
+                prop[i].tGrp = prop[i - 1].tGrp
+                procHLine()
+                resolve()
+              }
+              // begin & end
+              if (prop[i - 1].class !== `table` && !re_table.test(work[i + 1])) {
+                prop[i].site = `az`
+                prop[i].tGrp = i
+                procHLine()
+                resolve()
+              }
+              // inherit to begining with horizontal line
+              if (prop[i - 1].hLine === `current` && prop[i - 1].beginWithHLine) {
                 prop[i].beginWithHLine = true
+                resolve()
               }
-            }
-          }
-          if (i < iLast) {
-            i++
-            fn()
-          }
-          else {
-            resolve(prop)
-          }
+              function procHLine() {
+                if (prop[i - 1].hLine === `current` || prop[i - 1].hLine === `after`) {
+                  prop[i].hLine = `after`
+                }
+                else {
+                  prop[i].hLine = `unrelated`
+                }
+              }
+            })
+          )
+          promiseArray.push(
+            new Promise(resolve => {
+              if (/^\|([ :]?-+[ :]?\|)+/.test(work[i])) {
+                prop[i].hLine = `current`
+                let promiseArray = []
+                Promise.all(promiseArray)
+                .then(() => resolve())
+                promiseArray.push(
+                  new Promise(resolve => {
+                    let w = prop[prop[i].tGrp].cellAlign = work[i]
+                    .match(/(?<=(?<!\\)(?<!(\\\\)*\\)\|).*?(?=(?<!\\)(?<!(\\\\)*\\)\|)/g)
+                    .map(rly =>
+                      rly
+                      .replace(/^[ \t]*-+[ \t]*$/, ``)
+                      .replace(/^[ \t]*:-+[ \t]*$/, `style="text-align: left;"`)
+                      .replace(/^[ \t]*-+:[ \t]*$/, `style="text-align: right;"`)
+                      .replace(/^[ \t]*:-+:[ \t]*$/, `style="text-align: center;"`)
+                    )
+                    resolve(w)
+                  })
+                )
+                promiseArray.push(
+                  new Promise(resolve => {
+                    fn1(i)
+                    function fn1(iL) {
+                      iL--
+                      if (prop[iL].tGrp === prop[i].tGrp) {
+                        prop[iL].hLine = `before`
+                        fn1(iL)
+                      }
+                      if (prop[iL].tGrp !== prop[i].tGrp && iL === i - 1) {
+                        prop[i].beginWithHLine = true
+                        resolve()
+                      }
+                    }
+                  })
+                )
+              }
+              else {
+                resolve()
+              }
+            })
+          )
         }
         /* classify / footnote
         #######     ######      ######     ########    ###    ##     ######     ########    ####### 
@@ -806,7 +848,7 @@ function mdparse(src, switchObject) {
             if (prop[i].hLine !== `current`) {
               let rowFront = ``
               let rowBack = ``
-              let cellFront = ``
+              let cellFrontTag = ``
               let cellBack = ``
               //
               // continue
@@ -814,24 +856,24 @@ function mdparse(src, switchObject) {
               if (prop[i].site === `middle` && prop[i].hLine !== `current`) {
                 // continue before horizontal line
                 if (prop[i].hLine === `before`) {
-                  cellFront = `<th>`
+                  cellFrontTag = `th`
                   cellBack = `</th>`
                 }
                 // continue after horizontal line
                 if (prop[i].hLine === `after` || prop[i].hLine === `unrelated`) {
-                  cellFront = `<td>`
+                  cellFrontTag = `td`
                   cellBack = `</td>`
                 }
                 // begin with horizontal line
                 if (prop[i].beginWithHLine) {
                   rowFront = `<table><tbody>`
-                  cellFront = `<td>`
+                  cellFrontTag = `td`
                   cellBack = `</td>`
                 }
                 // end with horizontal line
                 if (prop[i].hLine === `before` && prop[i + 1].hLine === `current` && prop[i + 1].site === `end`) {
                   rowBack = `</tbody></table>`
-                  cellFront = `<th>`
+                  cellFrontTag = `th`
                   cellBack = `</th>`
                 }
               }
@@ -842,27 +884,27 @@ function mdparse(src, switchObject) {
                 // begin before horizontal line
                 if (prop[i].hLine === `before` && prop[i + 1].hLine !== `current`) {
                   rowFront = `<table><thead>`
-                  cellFront = `<th>`
+                  cellFrontTag = `th`
                   cellBack = `</th>`
                 }
                 // begin just before horizontal line
                 if (prop[i].hLine === `before` && prop[i + 1].hLine === `current`) {
                   rowFront = `<table><thead>`
                   rowBack = `</thead>`
-                  cellFront = `<th>`
+                  cellFrontTag = `th`
                   cellBack = `</th>`
                 }
                 // begin unrelated to horizotal line
                 if (prop[i].hLine === `unrelated`) {
                   rowFront = `<table><tbody>`
-                  cellFront = `<td>`
+                  cellFrontTag = `td`
                   cellBack = `</td>`
                 }
                 // begin just before horizotal line ending
                 if (prop[i].hLine === `before` && prop[i + 1].hLine === `current` && prop[i + 1].site === `end`) {
                   rowFront = `<table><thead>`
                   rowBack = `</thead></table>`
-                  cellFront = `<td>`
+                  cellFrontTag = `td`
                   cellBack = `</td>`
                 }
               }
@@ -873,27 +915,27 @@ function mdparse(src, switchObject) {
                 // end standard
                 if (prop[i].hLine === `after` && prop[i - 1].hLine === `after`) {
                   rowBack = `</tbody></table>`
-                  cellFront = `<td>`
+                  cellFrontTag = `td`
                   cellBack = `</td>`
                 }
                 // end just after horizontal line
                 if (prop[i].hLine === `after` && prop[i - 1].hLine === `before`) {
                   rowFront = `<tbody>`
                   rowBack = `</tbody></table>`
-                  cellFront = `<td>`
+                  cellFrontTag = `td`
                   cellBack = `</td>`
                 }
                 // end just after horizontal line begining
                 if (prop[i].beginWithHLine) {
                   rowFront = `<table><tbody>`
                   rowBack = `</tbody></table>`
-                  cellFront = `<td>`
+                  cellFrontTag = `td`
                   cellBack = `</td>`
                 }
                 // end unrelated to horizotal line
                 if (prop[i].hLine === `unrelated`) {
                   rowBack = `</tbody></table>`
-                  cellFront = `<td>`
+                  cellFrontTag = `td`
                   cellBack = `</td>`
                 }
               }
@@ -903,15 +945,16 @@ function mdparse(src, switchObject) {
               if (prop[i].site === `az`) {
                 rowFront = `<table><tbody>`
                 rowBack = `</tbody></table>`
-                cellFront = `<td>`
+                cellFrontTag = `td`
                 cellBack = `</td>`
               }
               //
               // execute replace
               //
               work[i] = work[i]
-              .replace(/^\|/, ``)
-              .replace(/[ \t]*(.*?)[ \t]*(?<!\\(\\\\)*)(?<!\\)\|/g, `${cellFront}$1${cellBack}`)
+              .replace(/^(?<!(\\\\)*\\)\||(?<!\\)(?<!(\\\\)*\\)\|$/, ``)
+              .split(/[ \t]*(?<!\\)(?<!(\\\\)*\\)\|[ \t]*/)
+              .map((rly, j) => {console.log(prop[98].cellAlign);console.log(prop[prop[i].tGrp].cellAlign);let w = `<${cellFrontTag} ${prop[prop[i].tGrp].cellAlign[j]}>${rly}${cellBack}`;console.log(w);return w})
               .replace(/^/, `${rowFront}<tr>`)
               .replace(/$/, `</tr>${rowBack}`)
               if (i < iLast) {
@@ -1336,7 +1379,6 @@ function mdparse(src, switchObject) {
     let fRtn = {}
     let re_fKey = /(?<!\\(?:\\\\)*|!)(?<=\[\^).+?(?=\](?!:))/g
     for (let i in work) {
-      console.log(work[i])
       work[i] = work[i]
       .replace(/(?<= |^|>|_|\*|~)(?:\\\\)*__(.+?)(?<!\\(?:\\\\)*)__(?= |$|<|_|\*|~)/g, `<strong>$1</strong>`)
       .replace(/(?<= |^|>|_|\*|~)(?:\\\\)*_(.+?)(?<!\\(?:\\\\)*)_(?= |$|<|_|\*|~)/g, `<em>$1</em>`)
